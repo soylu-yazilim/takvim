@@ -32,6 +32,7 @@
     --sabah-bg: #FEF3C7; --sabah-fg: #B45309; --sabah-dolgu: #F59E0B;
     --aksam-bg: #E0E7FF; --aksam-fg: #4338CA; --aksam-dolgu: #6366F1;
     --izin-bg: #D1FAE5;  --izin-fg: #047857;
+    --ozel-bg: #FEE2E2;  --ozel-fg: #B91C1C;  --ozel-dolgu: #EF4444;
     --golge: 0 1px 3px rgba(15,23,42,.06), 0 4px 16px rgba(15,23,42,.06);
     --radius: 14px;
   }
@@ -52,6 +53,7 @@
     --sabah-bg: #453006; --sabah-fg: #FCD34D;
     --aksam-bg: #272a55; --aksam-fg: #A5B4FC;
     --izin-bg: #06392c;  --izin-fg: #6EE7B7;
+    --ozel-bg: #451a1a;  --ozel-fg: #FCA5A5;  --ozel-dolgu: #F87171;
     --golge: 0 1px 3px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.35);
   }
 
@@ -218,6 +220,13 @@
   .gun.v-sabah { background: color-mix(in srgb, var(--sabah-bg) 34%, var(--surface)); }
   .gun.v-aksam { background: color-mix(in srgb, var(--aksam-bg) 34%, var(--surface)); }
 
+  .gun .ozel-nokta {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--ozel-dolgu);
+    flex-shrink: 0;
+  }
+
   .gun .cip {
     font-size: .58rem;
     background: var(--primary);
@@ -269,17 +278,23 @@
   .balon.asistan { align-self: flex-start; background: var(--muted); color: var(--fg); border-bottom-left-radius: 4px; }
   .balon.dusunuyor { align-self: flex-start; background: var(--muted); color: var(--fg-faint); font-style: italic; }
 
-  /* Gün kartı (sohbet içinde etkileşimli) */
+  /* Gün kartı (sohbet içinde etkileşimli).
+     Renkler bilerek açıkça verildi: bazı tarayıcılarda (iOS Safari) miras
+     zinciri koptuğunda yazılar zeminde kayboluyordu. */
   .gun-karti {
     align-self: stretch;
     border: 1px solid var(--border);
     border-radius: 12px;
     overflow: hidden;
     animation: gel .22s ease;
+    background: var(--surface);
+    color: var(--fg);
+    font-size: .86rem;
   }
   .gun-karti .gk-baslik {
     padding: 9px 13px;
     background: var(--muted);
+    color: var(--fg);
     display: flex; align-items: center; gap: 8px;
     font-weight: 600; font-size: .85rem;
     flex-wrap: wrap;
@@ -288,6 +303,7 @@
   .gk-rozet.sabah { background: var(--sabah-bg); color: var(--sabah-fg); }
   .gk-rozet.aksam { background: var(--aksam-bg); color: var(--aksam-fg); }
   .gk-rozet.izin  { background: var(--izin-bg);  color: var(--izin-fg); }
+  .gk-rozet.ozel  { background: var(--ozel-bg);  color: var(--ozel-fg); }
 
   .gk-vardiya-sec {
     display: flex; gap: 5px; align-items: center;
@@ -316,9 +332,10 @@
     padding: 8px 13px;
     border-top: 1px solid var(--border);
     font-size: .86rem;
+    color: var(--fg);
   }
   .gun-karti li input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
-  .gun-karti li .metin { flex: 1; word-break: break-word; }
+  .gun-karti li .metin { flex: 1; word-break: break-word; color: var(--fg); }
   .gun-karti li.tamam .metin { text-decoration: line-through; color: var(--fg-faint); }
   .saat-rozet {
     background: var(--primary); color: var(--on-primary);
@@ -538,7 +555,7 @@
     <div id="mesajlar"></div>
     <div class="oneriler" id="oneriler">
       <button>yarın ne var?</button>
-      <button>5 gün sonra işim var mı?</button>
+      <button>kurban bayramı ne zaman?</button>
       <button>1 ağustos 14:00 ahmetle buluşma</button>
     </div>
     <div class="yaz-alani">
@@ -609,6 +626,84 @@
   const aylar = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
   const gunAdlari = ["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"];
   const vardiyaAd = { sabah: "Sabahçı 🌅", aksam: "Akşamcı 🌙" };
+
+  /* ============ Özel günler (resmî ve dinî tatiller) ============ */
+  const ozelGunler = {
+    "2026-01-01": "Yılbaşı",
+    "2026-03-19": "Ramazan Bayramı Arifesi",
+    "2026-03-20": "Ramazan Bayramı 1. Gün",
+    "2026-03-21": "Ramazan Bayramı 2. Gün",
+    "2026-03-22": "Ramazan Bayramı 3. Gün",
+    "2026-04-23": "23 Nisan Ulusal Egemenlik ve Çocuk Bayramı",
+    "2026-05-01": "1 Mayıs Emek ve Dayanışma Günü",
+    "2026-05-19": "19 Mayıs Gençlik ve Spor Bayramı",
+    "2026-05-26": "Kurban Bayramı Arifesi",
+    "2026-05-27": "Kurban Bayramı 1. Gün",
+    "2026-05-28": "Kurban Bayramı 2. Gün",
+    "2026-05-29": "Kurban Bayramı 3. Gün",
+    "2026-05-30": "Kurban Bayramı 4. Gün",
+    "2026-07-15": "15 Temmuz Demokrasi ve Millî Birlik Günü",
+    "2026-08-30": "30 Ağustos Zafer Bayramı",
+    "2026-10-28": "Cumhuriyet Bayramı Arifesi",
+    "2026-10-29": "29 Ekim Cumhuriyet Bayramı",
+    "2027-01-01": "Yılbaşı",
+    "2027-03-08": "Ramazan Bayramı Arifesi",
+    "2027-03-09": "Ramazan Bayramı 1. Gün",
+    "2027-03-10": "Ramazan Bayramı 2. Gün",
+    "2027-03-11": "Ramazan Bayramı 3. Gün",
+    "2027-04-23": "23 Nisan Ulusal Egemenlik ve Çocuk Bayramı",
+    "2027-05-01": "1 Mayıs Emek ve Dayanışma Günü",
+    "2027-05-15": "Kurban Bayramı Arifesi",
+    "2027-05-16": "Kurban Bayramı 1. Gün",
+    "2027-05-17": "Kurban Bayramı 2. Gün",
+    "2027-05-18": "Kurban Bayramı 3. Gün",
+    "2027-05-19": "Kurban Bayramı 4. Gün + 19 Mayıs Gençlik ve Spor Bayramı",
+    "2027-07-15": "15 Temmuz Demokrasi ve Millî Birlik Günü",
+    "2027-08-30": "30 Ağustos Zafer Bayramı",
+    "2027-10-28": "Cumhuriyet Bayramı Arifesi",
+    "2027-10-29": "29 Ekim Cumhuriyet Bayramı"
+  };
+
+  // Sohbette özel gün adını yakalamak için gruplar (normalleştirilmiş metinde aranır)
+  const ozelGruplar = [
+    { re: /kurban(\s+bayram\w*)?/,            anahtar: "kurban",     ad: "Kurban Bayramı" },
+    { re: /(ramazan|seker)(\s+bayram\w*)?/,   anahtar: "ramazan",    ad: "Ramazan Bayramı" },
+    { re: /yilbasi\w*|yeni\s+yil\w*/,         anahtar: "yilbasi",    ad: "Yılbaşı" },
+    { re: /cumhuriyet(\s+bayram\w*)?/,        anahtar: "cumhuriyet", ad: "Cumhuriyet Bayramı" },
+    { re: /zafer(\s+bayram\w*)?/,             anahtar: "zafer",      ad: "Zafer Bayramı" },
+    { re: /cocuk\s+bayram\w*/,                anahtar: "cocuk",      ad: "23 Nisan" },
+    { re: /genclik(\s+ve\s+spor)?(\s+bayram\w*)?/, anahtar: "genclik", ad: "19 Mayıs" },
+    { re: /demokrasi(\s+ve\s+milli\s+birlik)?(\s+gun\w*)?/, anahtar: "demokrasi", ad: "15 Temmuz" },
+    { re: /(emek|isci)(\s+ve\s+dayanisma)?\s+gun\w*/, anahtar: "emek", ad: "1 Mayıs" }
+  ];
+
+  /* Metinde özel gün adı arar. Bulursa:
+     { ad, gunler: [t,...] (yaklaşan), hedef: görev eklenecek gün, kalan } döner. */
+  function ozelAyikla(metin) {
+    const norm = normallestir(metin);
+    for (const g of ozelGruplar) {
+      const m = norm.match(g.re);
+      if (!m) continue;
+
+      const bugunStr = tarihStr(new Date());
+      const tumu = Object.keys(ozelGunler).sort()
+        .filter(t => normallestir(ozelGunler[t]).includes(g.anahtar));
+      if (tumu.length === 0) continue;
+
+      let gunler = tumu.filter(t => t >= bugunStr);
+      if (gunler.length === 0) gunler = tumu;
+
+      // Görev hedefi: yaklaşan bayramın 1. günü (yoksa ilk günü)
+      const birinciGun = gunler.find(t => ozelGunler[t].includes("1. Gün"));
+      const hedef = birinciGun || gunler[0];
+
+      const kalan = (metin.slice(0, m.index) + " " + metin.slice(m.index + m[0].length))
+        .replace(/\s+/g, " ").trim();
+
+      return { ad: g.ad, gunler, hedef, kalan };
+    }
+    return null;
+  }
 
   const gunlerEl = document.getElementById("gunler");
   const ayBaslik = document.getElementById("ayBaslik");
@@ -738,6 +833,15 @@
     takvimCiz();
   }
 
+  // İki günün vardiyasını takaslar (arkadaşla vardiya değişimi)
+  function vardiyaTakas(a, b) {
+    const tipA = vardiyalar[a] || "izin";
+    const tipB = vardiyalar[b] || "izin";
+    vardiyaDegistir(a, tipB);
+    vardiyaDegistir(b, tipA);
+    return { tipA, tipB };
+  }
+
   /* ============ Tarih / saat ayıklama ============ */
   function tarihAyikla(metin, gecmisKabul) {
     const norm = normallestir(metin);
@@ -850,6 +954,14 @@
       no.textContent = g;
       ust.appendChild(no);
 
+      if (ozelGunler[t]) {
+        const on = document.createElement("div");
+        on.className = "ozel-nokta";
+        on.title = ozelGunler[t];
+        ust.appendChild(on);
+        el.title = ozelGunler[t];
+      }
+
       if (vardiya) {
         const vr = document.createElement("div");
         vr.className = "vardiya " + vardiya;
@@ -910,6 +1022,13 @@
     rozet.className = "gk-rozet " + (vardiya || "izin");
     rozet.textContent = vardiya ? vardiyaAd[vardiya] : "İzin ✅";
     baslik.appendChild(rozet);
+
+    if (ozelGunler[t]) {
+      const ozelRozet = document.createElement("span");
+      ozelRozet.className = "gk-rozet ozel";
+      ozelRozet.textContent = "🎉 " + ozelGunler[t];
+      baslik.appendChild(ozelRozet);
+    }
     kart.appendChild(baslik);
 
     // Vardiya değiştirme (takas) satırı — plan ya da istisna varsa göster
@@ -943,6 +1062,7 @@
     } else {
       const ul = document.createElement("ul");
       for (const g of gunGorevleri) {
+        if (!g || typeof g.metin !== "string") continue; // bozuk kayıt atla
         const li = document.createElement("li");
         if (g.tamam) li.classList.add("tamam");
 
@@ -1011,7 +1131,8 @@
 
   function gorevAra(soru) {
     const durak = new Set(["ne","zaman","hangi","gun","gunu","gunde","var","yok","mi","mu","isim","gorev",
-                           "gorevim","gorevlerim","benim","neler","nasil","kac","tarihte","tarihinde","icin","sil"]);
+                           "gorevim","gorevlerim","benim","neler","nasil","kac","tarihte","tarihinde","icin","sil",
+                           "tamamladim","tamamlandi","yaptim","bitirdim","hallettim"]);
     const kelimeler = normallestir(soru)
       .replace(/[?.,!]/g, " ")
       .split(/\s+/)
@@ -1039,6 +1160,84 @@
 
   function yerelIsle(metin) {
     const norm = normallestir(metin);
+
+    // Vardiya örüntüsü tanımı: "vardiyalarım: 22 temmuz sabah, 24 temmuz akşam, 27 temmuz sabah..."
+    if (/vardiy/.test(norm)) {
+      const ciftSayisi = (norm.match(/\d{1,2}\s*(ocak|subat|mart|nisan|mayis|haziran|temmuz|agustos|eylul|ekim|kasim|aralik)\w*\s+(sabah|aksam)/g) || []).length;
+      if (ciftSayisi >= 2) {
+        const v = new Date(); v.setMonth(v.getMonth() + 6);
+        const temiz = metin.replace(/vardiya\w*|:|calisiyorum|duzenim/gi, " ");
+        const parcalar = temiz.match(/\d{1,2}\s*[a-zçğıöşü]+\s+(sabah\w*|akşam\w*|aksam\w*)/gi);
+        if (parcalar && parcalar.length >= 2) {
+          const sonuc = orungyuCoz(parcalar.join("\n"), tarihStr(v));
+          if (!sonuc.hata) {
+            veri.vardiyaPlani = sonuc.plan;
+            veri.vardiyaIstisna = {};
+            kaydet();
+            vardiyalariHesapla();
+            takvimCiz();
+            balon("Vardiya örüntün çözüldü ve uygulandı. 📋\n" +
+                  "• Aralıklar: " + sonuc.plan.araliklar.join("-") + " gün (dönerek)\n" +
+                  "• Sıra: " + sonuc.plan.tipler.map(x => x === "sabah" ? "sabah" : "akşam").join(" → ") + "\n" +
+                  "• " + uzunTarih(sonuc.plan.bitis) + " tarihine kadar işlendi.", "asistan");
+            return true;
+          }
+          balon("Örüntüyü çözemedim: " + sonuc.hata, "asistan");
+          return true;
+        }
+      }
+    }
+
+    // Vardiya takası: "22 temmuz vardiyamı 23 temmuzla değiştirdim"
+    if (/vardiy/.test(norm) && /(degis|takas)/.test(norm)) {
+      const t1 = tarihAyikla(metin);
+      if (t1) {
+        const t2 = tarihAyikla(t1.kalan);
+        if (t2 && t2.tarih !== t1.tarih) {
+          const s = vardiyaTakas(t1.tarih, t2.tarih);
+          const adiVer = x => x === "izin" ? "izin" : (x === "sabah" ? "sabah" : "akşam");
+          balon("Vardiyalar takaslandı. 🔄\n" +
+                "• " + uzunTarih(t1.tarih) + " → " + adiVer(s.tipB) + "\n" +
+                "• " + uzunTarih(t2.tarih) + " → " + adiVer(s.tipA), "asistan");
+          return true;
+        }
+      }
+    }
+
+    // Görev tamamlama: "ahmetle buluşmayı tamamladım / yaptım / bitirdim"
+    if (/(tamamladim|tamamlandi|yaptim|bitirdim|hallettim)/.test(norm)) {
+      const bulunanlar = gorevAra(metin).filter(x => !x.g.tamam);
+      if (bulunanlar.length > 0) {
+        const { t, g } = bulunanlar[0];
+        g.tamam = true;
+        kaydet();
+        takvimCiz();
+        balon("✓ Tamamlandı olarak işaretlendi: " + uzunTarih(t) + " — " + g.metin, "asistan");
+        return true;
+      }
+    }
+
+    // Özel günler: "kurban bayramı ne zaman?", "kurban bayramında halama gideceğim"
+    const oz = ozelAyikla(metin);
+    if (oz) {
+      const soruGibi = /(ne zaman|hangi gun|hangi tarih|kac gun|\?)/.test(norm);
+      if (soruGibi || !oz.kalan || oz.kalan.length < 3) {
+        const satirlar = ["📆 " + oz.ad + ":"];
+        for (const t of oz.gunler) {
+          satirlar.push("• " + uzunTarih(t) + " — " + ozelGunler[t] + (vardiyalar[t] ? " (" + (vardiyalar[t] === "sabah" ? "sabahçısın" : "akşamcısın") + ")" : ""));
+        }
+        balon(satirlar.join("\n"), "asistan");
+        gunuGoster(oz.hedef);
+        return true;
+      }
+      // Özel güne görev ekleme
+      let kalan = oz.kalan, saat = null;
+      const sSonucOz = saatAyikla(kalan);
+      if (sSonucOz && sSonucOz.kalan) { saat = sSonucOz.saat; kalan = sSonucOz.kalan; }
+      gorevEkle(oz.hedef, saat, kalan);
+      balon("(" + ozelGunler[oz.hedef] + " gününe eklendi)", "asistan");
+      return true;
+    }
 
     // Vardiya değişikliği: "3 ağustos vardiyam akşam", "5 ağustos izinliyim", "sabahçıyım 6 ağustos"
     let vTip = null;
@@ -1118,11 +1317,13 @@
         "Sen Türkçe konuşan bir takvim asistanısın. Bugünün tarihi: " + tarihStr(new Date()) +
         " (" + gunAdlari[new Date().getDay()] + "). Kullanıcının mesajını analiz et ve SADECE şu JSON'u döndür" +
         " (başka hiçbir şey yazma):\n" +
-        '{"eylem":"ekle|sorgu|vardiya|bilinmiyor","tarih":"YYYY-MM-DD veya null","saat":"HH:MM veya null","tip":"sabah|aksam|izin veya null","metin":"görev metni veya arama kelimesi"}\n' +
+        '{"eylem":"ekle|sorgu|vardiya|takas|tamamla|bilinmiyor","tarih":"YYYY-MM-DD veya null","tarih2":"YYYY-MM-DD veya null","saat":"HH:MM veya null","tip":"sabah|aksam|izin veya null","metin":"görev metni veya arama kelimesi"}\n' +
         "Kurallar: 'ekle' = görev/plan/hatırlatma ekleme. 'sorgu' = bir gün hakkında soru (tarih ver) ya da görev arama" +
         " (metin ver, tarih null). 'vardiya' = kullanıcı bir günün vardiyasını değiştiriyor (tarih + tip ver;" +
-        " sabahçı=sabah, akşamcı=aksam, izinli/tatil=izin). Göreli tarihleri hesapla (yarın, haftaya salı, 3 gün sonra...)." +
-        " Tarih belirsizse bugünü kullan.\n\nKullanıcı mesajı: " + metin;
+        " sabahçı=sabah, akşamcı=aksam, izinli/tatil=izin). 'takas' = iki günün vardiyası karşılıklı değişiyor" +
+        " (tarih + tarih2 ver). 'tamamla' = kullanıcı bir görevi bitirdiğini söylüyor (metin ver)." +
+        " Göreli tarihleri hesapla (yarın, haftaya salı, 3 gün sonra...). Türkiye resmî/dinî tatillerini bilirsin" +
+        " (Kurban Bayramı 2027: 16-19 Mayıs; Ramazan Bayramı 2027: 9-11 Mart). Tarih belirsizse bugünü kullan.\n\nKullanıcı mesajı: " + metin;
 
       const yanit = await puter.ai.chat(sistem);
       const ham = typeof yanit === "string" ? yanit :
@@ -1145,6 +1346,29 @@
       if (k.eylem === "vardiya" && tarihGecerli && ["sabah", "aksam", "izin"].includes(k.tip)) {
         vardiyaDegistir(k.tarih, k.tip);
         balon(uzunTarih(k.tarih) + " → " + (k.tip === "izin" ? "izin günü" : k.tip + " vardiyası") + " olarak güncellendi. 🔄", "asistan");
+        return true;
+      }
+
+      if (k.eylem === "takas" && tarihGecerli && k.tarih2 && /^\d{4}-\d{2}-\d{2}$/.test(k.tarih2)) {
+        const s = vardiyaTakas(k.tarih, k.tarih2);
+        const adiVer = x => x === "izin" ? "izin" : (x === "sabah" ? "sabah" : "akşam");
+        balon("Vardiyalar takaslandı. 🔄\n" +
+              "• " + uzunTarih(k.tarih) + " → " + adiVer(s.tipB) + "\n" +
+              "• " + uzunTarih(k.tarih2) + " → " + adiVer(s.tipA), "asistan");
+        return true;
+      }
+
+      if (k.eylem === "tamamla" && k.metin) {
+        const bulunanlar = gorevAra(k.metin).filter(x => !x.g.tamam);
+        if (bulunanlar.length > 0) {
+          const { t, g } = bulunanlar[0];
+          g.tamam = true;
+          kaydet();
+          takvimCiz();
+          balon("✓ Tamamlandı olarak işaretlendi: " + uzunTarih(t) + " — " + g.metin, "asistan");
+          return true;
+        }
+        balon("Buna uyan tamamlanmamış görev bulamadım.", "asistan");
         return true;
       }
 
@@ -1185,8 +1409,9 @@
       balon("Bunu anlayamadım. 🤔 Şöyle deneyebilirsin:\n" +
             "• \"1 ağustos 14:00 ahmetle buluşma\"\n" +
             "• \"5 ağustosta işim var mı?\"\n" +
-            "• \"3 ağustos vardiyam akşam oldu\"\n" +
-            "• \"ahmetle buluşmayı sil\"", "asistan");
+            "• \"kurban bayramı ne zaman?\"\n" +
+            "• \"22 temmuz vardiyamı 23 temmuzla değiştirdim\"\n" +
+            "• \"ahmetle buluşmayı tamamladım\" / \"...sil\"", "asistan");
     }
   }
 
