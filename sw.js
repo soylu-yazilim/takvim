@@ -1,5 +1,5 @@
 // Basit çevrimdışı önbellek — sürüm numarasını artırınca eski önbellek temizlenir
-const SURUM = "takvim-v5";
+const SURUM = "takvim-v6";
 const DOSYALAR = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", e => {

@@ -625,7 +625,7 @@
 
   const aylar = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
   const gunAdlari = ["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"];
-  const vardiyaAd = { sabah: "Sabahçı 🌅", aksam: "Akşamcı 🌙" };
+  const vardiyaAd = { sabah: "Sabahçı", aksam: "Akşamcı" };
 
   /* ============ Özel günler (resmî ve dinî tatiller) ============ */
   const ozelGunler = {
@@ -1014,7 +1014,7 @@
       gunKartiOlustur(t);
     } catch (e) {
       // Kart çizilemezse hatayı gizlemek yerine sohbete yaz — teşhis kolaylaşır
-      balon("⚠ Gün kartı gösterilemedi (" + (e && e.message ? e.message : e) + "). " +
+      balon("Uyarı: Gün kartı gösterilemedi (" + (e && e.message ? e.message : e) + "). " +
             "Lütfen bu mesajın ekran görüntüsünü paylaş.", "asistan");
     }
   }
@@ -1025,18 +1025,18 @@
 
     const baslik = document.createElement("div");
     baslik.className = "gk-baslik";
-    baslik.textContent = "📅 " + uzunTarih(t);
+    baslik.textContent = uzunTarih(t);
 
     const vardiya = vardiyalar[t];
     const rozet = document.createElement("span");
     rozet.className = "gk-rozet " + (vardiya || "izin");
-    rozet.textContent = vardiya ? vardiyaAd[vardiya] : "İzin ✅";
+    rozet.textContent = vardiya ? vardiyaAd[vardiya] : "İzin";
     baslik.appendChild(rozet);
 
     if (ozelGunler[t]) {
       const ozelRozet = document.createElement("span");
       ozelRozet.className = "gk-rozet ozel";
-      ozelRozet.textContent = "🎉 " + ozelGunler[t];
+      ozelRozet.textContent = ozelGunler[t];
       baslik.appendChild(ozelRozet);
     }
     kart.appendChild(baslik);
@@ -1186,7 +1186,7 @@
             kaydet();
             vardiyalariHesapla();
             takvimCiz();
-            balon("Vardiya örüntün çözüldü ve uygulandı. 📋\n" +
+            balon("Vardiya örüntün çözüldü ve uygulandı.\n" +
                   "• Aralıklar: " + sonuc.plan.araliklar.join("-") + " gün (dönerek)\n" +
                   "• Sıra: " + sonuc.plan.tipler.map(x => x === "sabah" ? "sabah" : "akşam").join(" → ") + "\n" +
                   "• " + uzunTarih(sonuc.plan.bitis) + " tarihine kadar işlendi.", "asistan");
@@ -1206,7 +1206,7 @@
         if (t2 && t2.tarih !== t1.tarih) {
           const s = vardiyaTakas(t1.tarih, t2.tarih);
           const adiVer = x => x === "izin" ? "izin" : (x === "sabah" ? "sabah" : "akşam");
-          balon("Vardiyalar takaslandı. 🔄\n" +
+          balon("Vardiyalar takaslandı.\n" +
                 "• " + uzunTarih(t1.tarih) + " → " + adiVer(s.tipB) + "\n" +
                 "• " + uzunTarih(t2.tarih) + " → " + adiVer(s.tipA), "asistan");
           return true;
@@ -1232,7 +1232,7 @@
     if (oz) {
       const soruGibi = /(ne zaman|hangi gun|hangi tarih|kac gun|\?)/.test(norm);
       if (soruGibi || !oz.kalan || oz.kalan.length < 3) {
-        const satirlar = ["📆 " + oz.ad + ":"];
+        const satirlar = [(oz.ad + "") + ":"];
         for (const t of oz.gunler) {
           satirlar.push("• " + uzunTarih(t) + " — " + ozelGunler[t] + (vardiyalar[t] ? " (" + (vardiyalar[t] === "sabah" ? "sabahçısın" : "akşamcısın") + ")" : ""));
         }
@@ -1262,7 +1262,7 @@
       const tSonuc = tarihAyikla(metin);
       if (tSonuc) {
         vardiyaDegistir(tSonuc.tarih, vTip);
-        balon(uzunTarih(tSonuc.tarih) + " → " + (vTip === "izin" ? "izin günü" : vTip + " vardiyası") + " olarak güncellendi. 🔄", "asistan");
+        balon(uzunTarih(tSonuc.tarih) + " → " + (vTip === "izin" ? "izin günü" : vTip + " vardiyası") + " olarak güncellendi.", "asistan");
         return true;
       }
     }
@@ -1305,7 +1305,7 @@
     if (soruMu) {
       const bulunanlar = gorevAra(metin);
       if (bulunanlar.length > 0) {
-        const satirlar = ["🔎 Şunları buldum:"];
+        const satirlar = ["Şunları buldum:"];
         for (const { t, g } of bulunanlar.slice(0, 10)) {
           satirlar.push("• " + uzunTarih(t) + (g.saat ? " " + g.saat : "") + " — " + g.metin + (g.tamam ? " ✔" : ""));
         }
@@ -1355,14 +1355,14 @@
 
       if (k.eylem === "vardiya" && tarihGecerli && ["sabah", "aksam", "izin"].includes(k.tip)) {
         vardiyaDegistir(k.tarih, k.tip);
-        balon(uzunTarih(k.tarih) + " → " + (k.tip === "izin" ? "izin günü" : k.tip + " vardiyası") + " olarak güncellendi. 🔄", "asistan");
+        balon(uzunTarih(k.tarih) + " → " + (k.tip === "izin" ? "izin günü" : k.tip + " vardiyası") + " olarak güncellendi.", "asistan");
         return true;
       }
 
       if (k.eylem === "takas" && tarihGecerli && k.tarih2 && /^\d{4}-\d{2}-\d{2}$/.test(k.tarih2)) {
         const s = vardiyaTakas(k.tarih, k.tarih2);
         const adiVer = x => x === "izin" ? "izin" : (x === "sabah" ? "sabah" : "akşam");
-        balon("Vardiyalar takaslandı. 🔄\n" +
+        balon("Vardiyalar takaslandı.\n" +
               "• " + uzunTarih(k.tarih) + " → " + adiVer(s.tipB) + "\n" +
               "• " + uzunTarih(k.tarih2) + " → " + adiVer(s.tipA), "asistan");
         return true;
@@ -1387,7 +1387,7 @@
         if (k.metin) {
           const bulunanlar = gorevAra(k.metin);
           if (bulunanlar.length > 0) {
-            const satirlar = ["🔎 Şunları buldum:"];
+            const satirlar = ["Şunları buldum:"];
             for (const { t, g } of bulunanlar.slice(0, 10)) {
               satirlar.push("• " + uzunTarih(t) + (g.saat ? " " + g.saat : "") + " — " + g.metin + (g.tamam ? " ✔" : ""));
             }
@@ -1416,7 +1416,7 @@
 
     const aiBasarili = await aiIsle(metin);
     if (!aiBasarili) {
-      balon("Bunu anlayamadım. 🤔 Şöyle deneyebilirsin:\n" +
+      balon("Bunu anlayamadım. Şöyle deneyebilirsin:\n" +
             "• \"1 ağustos 14:00 ahmetle buluşma\"\n" +
             "• \"5 ağustosta işim var mı?\"\n" +
             "• \"kurban bayramı ne zaman?\"\n" +
@@ -1460,7 +1460,7 @@
     vardiyaOrt.classList.remove("acik");
 
     const gunSayisi = Object.keys(vardiyalar).length;
-    balon("Vardiya örüntün çözüldü ve uygulandı. 📋\n" +
+    balon("Vardiya örüntün çözüldü ve uygulandı.\n" +
           "• Aralıklar: " + sonuc.plan.araliklar.join("-") + " gün (dönerek)\n" +
           "• Sıra: " + sonuc.plan.tipler.map(t => t === "sabah" ? "sabah" : "akşam").join(" → ") + "\n" +
           "• " + uzunTarih(sonuc.plan.bitis) + " tarihine kadar " + gunSayisi + " çalışma günü işlendi.\n" +
@@ -1501,7 +1501,7 @@
       }
       vardiyalariHesapla();
       takvimCiz();
-      balon("Hoş geldin " + (kullanici.username || "") + "! 👋 Verilerin hesabına bağlı — başka cihazdan aynı hesapla girince aynı takvimi görürsün.", "asistan");
+      balon("Hoş geldin " + (kullanici.username || "") + "! Verilerin hesabına bağlı — başka cihazdan aynı hesapla girince aynı takvimi görürsün.", "asistan");
     } catch (e) { /* çevrimdışı devam */ }
     hesapArayuz();
   }
@@ -1579,9 +1579,9 @@
   takvimCiz();
 
   if (veri.vardiyaPlani) {
-    balon("Merhaba! 👋 Görev eklemek ya da takvimini sormak için yaz.", "asistan");
+    balon("Merhaba! Görev eklemek ya da takvimini sormak için yaz.", "asistan");
   } else {
-    balon("Merhaba! 👋 Görev eklemek için yazman yeterli (ör: \"1 ağustos 14:00 toplantı\").\n\nVardiyalı çalışıyorsan sağ üstteki ⚙ Vardiya düğmesine tıklayıp birkaç örnek gün yaz — örüntünü çözüp takvimine işlerim.", "asistan");
+    balon("Merhaba! Görev eklemek için yazman yeterli (ör: \"1 ağustos 14:00 toplantı\").\n\nVardiyalı çalışıyorsan sağ üstteki Vardiya düğmesine tıklayıp birkaç örnek gün yaz — örüntünü çözüp takvimine işlerim.", "asistan");
   }
 
   hesapArayuz();
@@ -1589,7 +1589,7 @@
   /* Puter'ı yalnızca bir web sunucusundan açıldığında yükle.
      file:// ile (çift tıklayıp) açılırsa Puter kendi hata penceresini
      gösteriyor; o durumda uygulama çevrimdışı modda çalışır. */
-  const UYGULAMA_SURUMU = "v5";
+  const UYGULAMA_SURUMU = "v6";
   document.getElementById("surumEtiketi").textContent = UYGULAMA_SURUMU;
 
   if (location.protocol === "http:" || location.protocol === "https:") {
