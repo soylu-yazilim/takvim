@@ -13,7 +13,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://js.puter.com/v2/"></script>
 <style>
   /* ============ Tasarım sistemi (design-system/takvim/MASTER.md) ============ */
   :root {
@@ -248,6 +247,7 @@
     font-weight: 600; font-size: .92rem;
   }
   .sohbet-baslik .durum { font-size: .72rem; font-weight: 500; color: var(--fg-faint); margin-left: auto; white-space: nowrap; }
+  .sohbet-baslik .surum { font-size: .62rem; font-weight: 600; color: var(--fg-faint); background: var(--muted); border-radius: 5px; padding: 1px 6px; }
 
   #mesajlar {
     flex: 1;
@@ -549,7 +549,7 @@
   <section class="kart sohbet-kart" aria-label="Asistan">
     <div class="sohbet-baslik">
       <svg class="ikon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-      Asistan
+      Asistan <span class="surum" id="surumEtiketi"></span>
       <span class="durum" id="aiDurum"></span>
     </div>
     <div id="mesajlar"></div>
@@ -739,7 +739,7 @@
   }
 
   function sirala(list) {
-    return [...list].sort((a, b) => {
+    return list.filter(x => x && typeof x === "object" && typeof x.metin === "string").sort((a, b) => {
       if (a.saat && b.saat) return a.saat.localeCompare(b.saat);
       if (a.saat) return -1;
       if (b.saat) return 1;
@@ -1010,6 +1010,16 @@
   }
 
   function gunKartiGoster(t) {
+    try {
+      gunKartiOlustur(t);
+    } catch (e) {
+      // Kart çizilemezse hatayı gizlemek yerine sohbete yaz — teşhis kolaylaşır
+      balon("⚠ Gün kartı gösterilemedi (" + (e && e.message ? e.message : e) + "). " +
+            "Lütfen bu mesajın ekran görüntüsünü paylaş.", "asistan");
+    }
+  }
+
+  function gunKartiOlustur(t) {
     const kart = document.createElement("div");
     kart.className = "gun-karti";
 
@@ -1574,10 +1584,24 @@
     balon("Merhaba! 👋 Görev eklemek için yazman yeterli (ör: \"1 ağustos 14:00 toplantı\").\n\nVardiyalı çalışıyorsan sağ üstteki ⚙ Vardiya düğmesine tıklayıp birkaç örnek gün yaz — örüntünü çözüp takvimine işlerim.", "asistan");
   }
 
-  if (window.puter && puter.auth && puter.auth.isSignedIn()) {
-    girisSonrasi();
+  hesapArayuz();
+
+  /* Puter'ı yalnızca bir web sunucusundan açıldığında yükle.
+     file:// ile (çift tıklayıp) açılırsa Puter kendi hata penceresini
+     gösteriyor; o durumda uygulama çevrimdışı modda çalışır. */
+  const UYGULAMA_SURUMU = "v5";
+  document.getElementById("surumEtiketi").textContent = UYGULAMA_SURUMU;
+
+  if (location.protocol === "http:" || location.protocol === "https:") {
+    const ps = document.createElement("script");
+    ps.src = "https://js.puter.com/v2/";
+    ps.onload = () => {
+      if (window.puter && puter.auth && puter.auth.isSignedIn()) girisSonrasi();
+    };
+    document.head.appendChild(ps);
   } else {
-    hesapArayuz();
+    aiDurum.textContent = "yerel dosya modu";
+    balon("Not: Dosyayı bilgisayardan çift tıklayarak açtın. Giriş ve yapay zekâ özellikleri için siteyi şu adresten kullan:\nhttps://soylu-yazilim.github.io/takvim/", "asistan");
   }
 
   if ("serviceWorker" in navigator && location.protocol === "https:") {
