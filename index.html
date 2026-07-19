@@ -29,8 +29,8 @@
     --border: #E2E8F0;
     --destructive: #DC2626;
     --ring: #2563EB;
-    --sabah-bg: #FEF3C7; --sabah-fg: #B45309;
-    --aksam-bg: #E0E7FF; --aksam-fg: #4338CA;
+    --sabah-bg: #FEF3C7; --sabah-fg: #B45309; --sabah-dolgu: #F59E0B;
+    --aksam-bg: #E0E7FF; --aksam-fg: #4338CA; --aksam-dolgu: #6366F1;
     --izin-bg: #D1FAE5;  --izin-fg: #047857;
     --golge: 0 1px 3px rgba(15,23,42,.06), 0 4px 16px rgba(15,23,42,.06);
     --radius: 14px;
@@ -56,7 +56,6 @@
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
   html, body { height: 100%; }
 
   body {
@@ -66,10 +65,11 @@
     font-size: 16px;
     line-height: 1.5;
     transition: background .25s, color .25s;
+    overflow-x: hidden;
   }
 
   button { font-family: inherit; cursor: pointer; }
-  button:focus-visible, input:focus-visible {
+  button:focus-visible, input:focus-visible, textarea:focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 2px;
   }
@@ -78,40 +78,43 @@
 
   /* ============ Üst çubuk ============ */
   header {
-    height: 60px;
+    height: 58px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 18px;
+    padding: 0 16px;
     background: var(--surface);
     border-bottom: 1px solid var(--border);
     position: sticky;
     top: 0;
     z-index: 10;
+    gap: 8px;
   }
 
-  .marka { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.02rem; }
+  .marka { display: flex; align-items: center; gap: 9px; font-weight: 700; font-size: 1rem; }
   .marka .logo {
-    width: 32px; height: 32px;
+    width: 30px; height: 30px;
     background: var(--primary);
     color: var(--on-primary);
-    border-radius: 9px;
+    border-radius: 8px;
     display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
   }
 
-  .arac { display: flex; align-items: center; gap: 8px; }
+  .arac { display: flex; align-items: center; gap: 6px; }
 
   .arac button {
-    display: flex; align-items: center; gap: 7px;
+    display: flex; align-items: center; gap: 6px;
     min-height: 40px;
-    padding: 8px 13px;
+    padding: 8px 11px;
     border: 1px solid var(--border);
     background: var(--surface);
     color: var(--fg);
     border-radius: 10px;
-    font-size: .86rem;
+    font-size: .84rem;
     font-weight: 500;
     transition: background .2s, border-color .2s;
+    white-space: nowrap;
   }
 
   .arac button:hover { background: var(--muted); }
@@ -119,7 +122,7 @@
   #girisBtn { background: var(--primary); color: var(--on-primary); border-color: var(--primary); }
   #girisBtn:hover { filter: brightness(1.08); background: var(--primary); }
 
-  .kullanici-adi { font-size: .84rem; color: var(--fg-soft); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .kullanici-adi { font-size: .82rem; color: var(--fg-soft); max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   /* ============ Ana yerleşim ============ */
   main {
@@ -129,7 +132,7 @@
     padding: 16px;
     max-width: 1180px;
     margin: 0 auto;
-    height: calc(100dvh - 60px);
+    height: calc(100dvh - 58px);
   }
 
   .kart {
@@ -144,39 +147,39 @@
   }
 
   /* ============ Takvim ============ */
-  .takvim { padding: 18px; overflow-y: auto; }
+  .takvim { padding: 16px; overflow-y: auto; }
 
-  .takvim-baslik { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-  .takvim-baslik h1 { font-size: 1.1rem; font-weight: 700; }
+  .takvim-baslik { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 6px; }
+  .takvim-baslik h1 { font-size: 1.05rem; font-weight: 700; white-space: nowrap; }
 
-  .nav { display: flex; gap: 6px; }
+  .nav { display: flex; gap: 5px; }
   .nav button {
-    min-width: 40px; min-height: 40px;
+    min-width: 38px; min-height: 38px;
     display: flex; align-items: center; justify-content: center;
     border: 1px solid var(--border);
     background: var(--surface);
     color: var(--fg-soft);
     border-radius: 10px;
-    font-size: .86rem;
+    font-size: .84rem;
     font-weight: 500;
-    padding: 0 10px;
+    padding: 0 9px;
     transition: background .2s, color .2s;
   }
   .nav button:hover { background: var(--muted); color: var(--fg); }
 
-  .lejant { display: flex; gap: 14px; margin-bottom: 10px; font-size: .76rem; color: var(--fg-soft); }
-  .lejant .kutu { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 5px; }
-  .kutu.sabah-r { background: #F59E0B; }
-  .kutu.aksam-r { background: #6366F1; }
+  .lejant { display: flex; gap: 12px; margin-bottom: 8px; font-size: .74rem; color: var(--fg-soft); flex-wrap: wrap; }
+  .lejant .kutu { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px; }
+  .kutu.sabah-r { background: var(--sabah-dolgu); }
+  .kutu.aksam-r { background: var(--aksam-dolgu); }
 
-  .gun-adlari, .gunler { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
-  .gun-adlari { margin-bottom: 6px; text-align: center; font-size: .7rem; font-weight: 600; color: var(--fg-faint); letter-spacing: .05em; text-transform: uppercase; }
+  .gun-adlari, .gunler { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+  .gun-adlari { margin-bottom: 5px; text-align: center; font-size: .66rem; font-weight: 600; color: var(--fg-faint); letter-spacing: .04em; text-transform: uppercase; }
 
   .gun {
     aspect-ratio: 1 / 1;
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 5px;
+    border-radius: 9px;
+    padding: 4px;
     cursor: pointer;
     display: flex;
     flex-direction: column;
@@ -190,21 +193,21 @@
   .gun.bos-gun { border: none; cursor: default; background: transparent; }
   .gun.bos-gun:hover { box-shadow: none; }
 
-  .gun .ust { display: flex; align-items: center; justify-content: space-between; gap: 2px; }
-  .gun .no { font-size: .84rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .gun .ust { display: flex; align-items: center; justify-content: space-between; gap: 2px; min-height: 18px; }
+  .gun .no { font-size: clamp(.68rem, 1.9vw, .82rem); font-weight: 600; font-variant-numeric: tabular-nums; }
 
   .gun.bugun { border-color: var(--primary); }
   .gun.bugun .no {
     background: var(--primary); color: var(--on-primary);
-    width: 22px; height: 22px; border-radius: 50%;
+    width: 20px; height: 20px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-size: .74rem;
+    font-size: .68rem;
   }
 
   .gun.secili { border: 2px solid var(--primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 22%, transparent); }
 
   .gun .vardiya {
-    font-size: .56rem; font-weight: 700;
+    font-size: .54rem; font-weight: 700;
     border-radius: 4px; padding: 1px 4px;
     white-space: nowrap; flex-shrink: 0;
     letter-spacing: .02em;
@@ -216,7 +219,7 @@
   .gun.v-aksam { background: color-mix(in srgb, var(--aksam-bg) 34%, var(--surface)); }
 
   .gun .cip {
-    font-size: .6rem;
+    font-size: .58rem;
     background: var(--primary);
     color: var(--on-primary);
     border-radius: 4px;
@@ -224,23 +227,23 @@
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .gun .cip.tamam { background: var(--muted); color: var(--fg-faint); text-decoration: line-through; }
-  .gun .fazla { font-size: .6rem; color: var(--primary); font-weight: 600; }
+  .gun .fazla { font-size: .58rem; color: var(--primary); font-weight: 600; }
 
   /* ============ Sohbet ============ */
   .sohbet-kart { overflow: hidden; }
 
   .sohbet-baslik {
-    padding: 14px 18px;
+    padding: 12px 16px;
     border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; gap: 10px;
-    font-weight: 600; font-size: .95rem;
+    display: flex; align-items: center; gap: 9px;
+    font-weight: 600; font-size: .92rem;
   }
-  .sohbet-baslik .durum { font-size: .74rem; font-weight: 500; color: var(--fg-faint); margin-left: auto; }
+  .sohbet-baslik .durum { font-size: .72rem; font-weight: 500; color: var(--fg-faint); margin-left: auto; white-space: nowrap; }
 
   #mesajlar {
     flex: 1;
     overflow-y: auto;
-    padding: 16px;
+    padding: 14px;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -251,7 +254,7 @@
     max-width: 88%;
     padding: 10px 13px;
     border-radius: 14px;
-    font-size: .9rem;
+    font-size: .88rem;
     white-space: pre-wrap;
     word-break: break-word;
     animation: gel .22s ease;
@@ -259,7 +262,7 @@
 
   @keyframes gel { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
   @media (prefers-reduced-motion: reduce) {
-    .balon, .gun, body, .kart { animation: none !important; transition: none !important; }
+    .balon, .gun, body, .kart, .ort { animation: none !important; transition: none !important; }
   }
 
   .balon.ben { align-self: flex-end; background: var(--primary); color: var(--on-primary); border-bottom-right-radius: 4px; }
@@ -275,31 +278,53 @@
     animation: gel .22s ease;
   }
   .gun-karti .gk-baslik {
-    padding: 10px 14px;
+    padding: 9px 13px;
     background: var(--muted);
     display: flex; align-items: center; gap: 8px;
-    font-weight: 600; font-size: .88rem;
+    font-weight: 600; font-size: .85rem;
     flex-wrap: wrap;
   }
-  .gk-rozet { font-size: .72rem; font-weight: 700; border-radius: 6px; padding: 2px 9px; }
+  .gk-rozet { font-size: .7rem; font-weight: 700; border-radius: 6px; padding: 2px 8px; }
   .gk-rozet.sabah { background: var(--sabah-bg); color: var(--sabah-fg); }
   .gk-rozet.aksam { background: var(--aksam-bg); color: var(--aksam-fg); }
   .gk-rozet.izin  { background: var(--izin-bg);  color: var(--izin-fg); }
 
+  .gk-vardiya-sec {
+    display: flex; gap: 5px; align-items: center;
+    padding: 8px 13px;
+    border-top: 1px solid var(--border);
+    font-size: .74rem; color: var(--fg-faint);
+    flex-wrap: wrap;
+  }
+  .gk-vardiya-sec button {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--fg-soft);
+    border-radius: 8px;
+    padding: 5px 11px;
+    font-size: .74rem;
+    font-weight: 600;
+    min-height: 32px;
+    transition: background .15s, color .15s, border-color .15s;
+  }
+  .gk-vardiya-sec button:hover { border-color: var(--primary); color: var(--primary); }
+  .gk-vardiya-sec button.aktif { background: var(--primary); color: var(--on-primary); border-color: var(--primary); }
+
   .gun-karti ul { list-style: none; }
   .gun-karti li {
-    display: flex; align-items: center; gap: 10px;
-    padding: 9px 14px;
+    display: flex; align-items: center; gap: 9px;
+    padding: 8px 13px;
     border-top: 1px solid var(--border);
-    font-size: .88rem;
+    font-size: .86rem;
   }
-  .gun-karti li input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
+  .gun-karti li input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
   .gun-karti li .metin { flex: 1; word-break: break-word; }
   .gun-karti li.tamam .metin { text-decoration: line-through; color: var(--fg-faint); }
   .saat-rozet {
     background: var(--primary); color: var(--on-primary);
-    font-size: .7rem; font-weight: 700; border-radius: 5px; padding: 2px 6px;
+    font-size: .68rem; font-weight: 700; border-radius: 5px; padding: 2px 6px;
     font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
   }
   li.tamam .saat-rozet { background: var(--muted); color: var(--fg-faint); }
   .gun-karti li button.sil {
@@ -310,17 +335,17 @@
     transition: color .15s, background .15s;
   }
   .gun-karti li button.sil:hover { color: var(--destructive); background: var(--muted); }
-  .gun-karti .gk-bos { padding: 12px 14px; color: var(--fg-faint); font-size: .85rem; border-top: 1px solid var(--border); }
+  .gun-karti .gk-bos { padding: 10px 13px; color: var(--fg-faint); font-size: .82rem; border-top: 1px solid var(--border); }
 
   /* Öneri çipleri */
-  .oneriler { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 16px 10px; }
+  .oneriler { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 14px 8px; }
   .oneriler button {
     border: 1px solid var(--border);
     background: var(--surface);
     color: var(--fg-soft);
     border-radius: 999px;
-    padding: 6px 12px;
-    font-size: .78rem;
+    padding: 6px 11px;
+    font-size: .74rem;
     transition: background .2s, color .2s, border-color .2s;
   }
   .oneriler button:hover { border-color: var(--primary); color: var(--primary); }
@@ -328,17 +353,17 @@
   /* Giriş satırı */
   .yaz-alani {
     display: flex; gap: 8px;
-    padding: 12px 16px 16px;
+    padding: 10px 14px 14px;
     border-top: 1px solid var(--border);
   }
   .yaz-alani input {
     flex: 1; min-width: 0;
-    padding: 12px 14px;
+    padding: 12px 13px;
     border: 1.5px solid var(--border);
     border-radius: 12px;
     background: var(--bg);
     color: var(--fg);
-    font-size: .92rem;
+    font-size: .9rem;
     font-family: inherit;
     transition: border-color .2s;
   }
@@ -352,21 +377,104 @@
     border-radius: 12px;
     display: flex; align-items: center; justify-content: center;
     transition: filter .2s, transform .1s;
+    flex-shrink: 0;
   }
   .yaz-alani button:hover { filter: brightness(1.08); }
   .yaz-alani button:active { transform: scale(.96); }
+
+  /* ============ Vardiya ayar penceresi ============ */
+  .ort {
+    position: fixed; inset: 0;
+    background: rgba(2,6,23,.55);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 50;
+    padding: 16px;
+  }
+  .ort.acik { display: flex; animation: gel .2s ease; }
+
+  .pencere {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: var(--golge);
+    width: 100%;
+    max-width: 460px;
+    max-height: 90dvh;
+    overflow-y: auto;
+    padding: 20px;
+  }
+  .pencere h2 { font-size: 1.02rem; margin-bottom: 4px; }
+  .pencere .aciklama { font-size: .8rem; color: var(--fg-soft); margin-bottom: 14px; line-height: 1.55; }
+
+  .pencere label { display: block; font-size: .78rem; font-weight: 600; color: var(--fg-soft); margin: 12px 0 5px; }
+  .pencere textarea, .pencere input[type="date"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg);
+    color: var(--fg);
+    font-size: .88rem;
+    font-family: inherit;
+  }
+  .pencere textarea { min-height: 110px; resize: vertical; }
+  .pencere textarea:focus, .pencere input[type="date"]:focus { border-color: var(--ring); outline: none; }
+
+  .pencere .hata { color: var(--destructive); font-size: .8rem; margin-top: 8px; min-height: 1.2em; }
+
+  .pencere .dugmeler { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+  .pencere .dugmeler button {
+    min-height: 42px;
+    padding: 9px 15px;
+    border-radius: 10px;
+    font-size: .86rem;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--fg);
+  }
+  .pencere .dugmeler .birincil { background: var(--primary); color: var(--on-primary); border-color: var(--primary); flex: 1; }
+  .pencere .dugmeler .tehlike { color: var(--destructive); }
 
   /* ============ Mobil ============ */
   @media (max-width: 820px) {
     main {
       grid-template-columns: 1fr;
       height: auto;
-      padding: 12px;
+      padding: 10px;
+      gap: 12px;
     }
-    .takvim { overflow: visible; }
-    .sohbet-kart { min-height: 520px; height: 72dvh; }
-    header { padding: 0 12px; }
+    .takvim { overflow: visible; padding: 12px; }
+    .sohbet-kart { height: 68dvh; min-height: 430px; }
+    header { padding: 0 10px; }
     .kullanici-adi { display: none; }
+    .arac button { padding: 8px 9px; }
+    .arac button .yazi { display: none; }
+    #girisBtn .yazi { display: inline; }
+
+    .gun-adlari, .gunler { gap: 3px; }
+    .gun { padding: 3px; border-radius: 8px; gap: 1px; }
+    .gun .ust { min-height: 15px; }
+    .gun.bugun .no { width: 17px; height: 17px; font-size: .6rem; }
+
+    /* Vardiya rozeti mobilde renkli nokta olur */
+    .gun .vardiya {
+      font-size: 0;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      padding: 0;
+    }
+    .vardiya.sabah { background: var(--sabah-dolgu); }
+    .vardiya.aksam { background: var(--aksam-dolgu); }
+
+    .gun .cip { font-size: .5rem; padding: 1px 2px; border-radius: 3px; }
+    .gun .fazla { font-size: .5rem; }
+
+    .balon { font-size: .86rem; max-width: 92%; }
+    .oneriler button { font-size: .72rem; padding: 5px 10px; }
+    .takvim-baslik h1 { font-size: .98rem; }
+    .nav button { min-width: 36px; min-height: 36px; }
   }
 </style>
 </head>
@@ -381,17 +489,21 @@
   </div>
   <div class="arac">
     <span class="kullanici-adi" id="kullaniciAdi"></span>
+    <button id="vardiyaBtn" title="Vardiya düzenini ayarla">
+      <svg class="ikon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span class="yazi">Vardiya</span>
+    </button>
     <button id="temaBtn" aria-label="Tema değiştir" title="Karanlık / aydınlık tema">
       <svg id="ikonAy" class="ikon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       <svg id="ikonGunes" class="ikon" viewBox="0 0 24 24" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
     </button>
     <button id="girisBtn">
       <svg class="ikon" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-      <span>Giriş yap</span>
+      <span class="yazi">Giriş yap</span>
     </button>
     <button id="cikisBtn" style="display:none">
       <svg class="ikon" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-      <span>Çıkış</span>
+      <span class="yazi">Çıkış</span>
     </button>
   </div>
 </header>
@@ -407,7 +519,7 @@
         <button id="sonrakiBtn" aria-label="Sonraki ay"><svg class="ikon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
       </div>
     </div>
-    <div class="lejant">
+    <div class="lejant" id="lejant" style="display:none">
       <span><span class="kutu sabah-r"></span>Sabahçı</span>
       <span><span class="kutu aksam-r"></span>Akşamcı</span>
     </div>
@@ -439,41 +551,55 @@
 
 </main>
 
+<!-- Vardiya ayar penceresi -->
+<div class="ort" id="vardiyaOrt">
+  <div class="pencere" role="dialog" aria-labelledby="vardiyaBaslikH2" aria-modal="true">
+    <h2 id="vardiyaBaslikH2">Vardiya düzenin</h2>
+    <p class="aciklama">
+      Çalıştığın günlerden <strong>en az 3-4 örnek</strong> yaz (her satıra bir gün: tarih + sabah/akşam).
+      Örüntüyü çözüp seçtiğin tarihe kadar otomatik doldururum.
+      Tek günlük değişiklikler (arkadaşınla vardiya takası gibi) için takvimden güne tıklaman yeterli.
+    </p>
+    <label for="ornekGunler">Örnek çalışma günleri</label>
+    <textarea id="ornekGunler" placeholder="22 temmuz sabah&#10;24 temmuz akşam&#10;27 temmuz sabah&#10;29 temmuz akşam"></textarea>
+    <label for="bitisTarihi">Şu tarihe kadar doldur</label>
+    <input type="date" id="bitisTarihi">
+    <div class="hata" id="vardiyaHata"></div>
+    <div class="dugmeler">
+      <button class="birincil" id="vardiyaKaydet">Örüntüyü çöz ve uygula</button>
+      <button id="vardiyaKapat">Kapat</button>
+      <button class="tehlike" id="vardiyaTemizle">Vardiyaları temizle</button>
+    </div>
+  </div>
+</div>
+
 <script>
-  /* =====================================================================
-     VARDİYA PLANI — vardiya değişince SADECE bu blok güncellenir.
-     Kural: baslangic gününden itibaren araliklar dizisindeki gün
-     aralıkları sırayla (dönerek) uygulanır; vardiya tipi de tipler
-     dizisinde sırayla döner. bitis dahil o tarihe kadar hesaplanır.
+  /* ============ Veri modeli ============
+     veri = {
+       gorevler:       { "YYYY-MM-DD": [ {id, metin, tamam, saat?}, ... ] },
+       vardiyaPlani:   { baslangic, araliklar:[..], tipler:[..], bitis } | null,
+       vardiyaIstisna: { "YYYY-MM-DD": "sabah"|"aksam"|"izin" }   (takaslar)
+     }
+     Giriş yapılmadıysa localStorage'da; giriş yapıldıysa Puter kv'de kişiye özel.
+  ======================================== */
+  function varsayilanVeri() { return { gorevler: {}, vardiyaPlani: null, vardiyaIstisna: {} }; }
 
-     Mevcut plan (19 Temmuz 2026'da tanımlandı):
-       22 Tem sabah → +2 gün akşam → +3 gün sabah → +2 gün akşam → ...
-     ===================================================================== */
-  const vardiyaPlani = {
-    baslangic: "2026-07-22",
-    araliklar: [2, 3],
-    tipler: ["sabah", "aksam"],
-    bitis: "2027-01-01"
-  };
-
-  const vardiyaAd = { sabah: "Sabahçı 🌅", aksam: "Akşamcı 🌙" };
-
-  const vardiyalar = {};
-  (function hesaplaVardiyalar() {
-    const bitis = new Date(vardiyaPlani.bitis + "T00:00:00");
-    let d = new Date(vardiyaPlani.baslangic + "T00:00:00");
-    let i = 0;
-    while (d <= bitis) {
-      vardiyalar[tarihStr(d)] = vardiyaPlani.tipler[i % vardiyaPlani.tipler.length];
-      d = new Date(d);
-      d.setDate(d.getDate() + vardiyaPlani.araliklar[i % vardiyaPlani.araliklar.length]);
-      i++;
-    }
-  })();
-
-  /* ============ Durum ============ */
-  let gorevler = JSON.parse(localStorage.getItem("takvimGorevler") || "{}");
+  let veri = varsayilanVeri();
   let kullanici = null;
+  let vardiyalar = {};
+
+  (function verileriYukle() {
+    try {
+      const kayit = localStorage.getItem("takvimVeri");
+      if (kayit) {
+        veri = Object.assign(varsayilanVeri(), JSON.parse(kayit));
+      } else {
+        // Eski sürümden geçiş: sadece görevler vardı
+        const eski = localStorage.getItem("takvimGorevler");
+        if (eski) { veri.gorevler = JSON.parse(eski); localStorage.removeItem("takvimGorevler"); }
+      }
+    } catch (e) { veri = varsayilanVeri(); }
+  })();
 
   const bugun = new Date();
   let gosterilenYil = bugun.getFullYear();
@@ -482,12 +608,14 @@
 
   const aylar = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
   const gunAdlari = ["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"];
+  const vardiyaAd = { sabah: "Sabahçı 🌅", aksam: "Akşamcı 🌙" };
 
   const gunlerEl = document.getElementById("gunler");
   const ayBaslik = document.getElementById("ayBaslik");
   const mesajlarEl = document.getElementById("mesajlar");
   const girdi = document.getElementById("girdi");
   const aiDurum = document.getElementById("aiDurum");
+  const lejant = document.getElementById("lejant");
 
   /* ============ Yardımcılar ============ */
   function tarihStr(d) {
@@ -502,9 +630,9 @@
   }
 
   function kaydet() {
-    localStorage.setItem("takvimGorevler", JSON.stringify(gorevler));
+    localStorage.setItem("takvimVeri", JSON.stringify(veri));
     if (kullanici && window.puter) {
-      puter.kv.set("takvimGorevler", JSON.stringify(gorevler)).catch(() => {});
+      puter.kv.set("takvimVeri", JSON.stringify(veri)).catch(() => {});
     }
   }
 
@@ -524,23 +652,112 @@
     });
   }
 
+  /* ============ Vardiya hesaplama ============ */
+  function vardiyalariHesapla() {
+    vardiyalar = {};
+    const p = veri.vardiyaPlani;
+    if (p) {
+      const bitis = new Date(p.bitis + "T00:00:00");
+      let d = new Date(p.baslangic + "T00:00:00");
+      let i = 0;
+      while (d <= bitis && i < 2000) {
+        vardiyalar[tarihStr(d)] = p.tipler[i % p.tipler.length];
+        d = new Date(d);
+        d.setDate(d.getDate() + p.araliklar[i % p.araliklar.length]);
+        i++;
+      }
+    }
+    for (const [t, tip] of Object.entries(veri.vardiyaIstisna || {})) {
+      if (tip === "izin") delete vardiyalar[t];
+      else vardiyalar[t] = tip;
+    }
+    lejant.style.display = Object.keys(vardiyalar).length ? "flex" : "none";
+  }
+
+  // En kısa tekrarlayan döngüyü bul: [2,3,2] -> [2,3]
+  function minDongu(dizi) {
+    for (let k = 1; k <= dizi.length; k++) {
+      let uyuyor = true;
+      for (let i = k; i < dizi.length; i++) {
+        if (dizi[i] !== dizi[i % k]) { uyuyor = false; break; }
+      }
+      if (uyuyor) return dizi.slice(0, k);
+    }
+    return dizi;
+  }
+
+  // "22 temmuz sabah\n24 temmuz akşam..." metninden örüntü çözer
+  function orungyuCoz(metinBlok, bitis) {
+    const girisler = [];
+    for (const satir of metinBlok.split(/[\n,;]+/)) {
+      const p = satir.trim();
+      if (!p) continue;
+      const t = tarihAyikla(p, true);
+      if (!t) return { hata: '"' + p + '" satırında tarih bulamadım.' };
+      const n = normallestir(p);
+      const tip = /sabah/.test(n) ? "sabah" : (/aksam/.test(n) ? "aksam" : null);
+      if (!tip) return { hata: '"' + p + '" için sabah mı akşam mı olduğunu yaz.' };
+      girisler.push({ tarih: t.tarih, tip });
+    }
+    if (girisler.length < 2) return { hata: "En az 2 örnek gün gerekli (3-4 olursa daha iyi)." };
+
+    girisler.sort((a, b) => a.tarih.localeCompare(b.tarih));
+
+    const araliklar = [];
+    for (let i = 1; i < girisler.length; i++) {
+      const fark = Math.round((new Date(girisler[i].tarih) - new Date(girisler[i - 1].tarih)) / 86400000);
+      if (fark <= 0) return { hata: "Aynı tarih iki kez yazılmış: " + girisler[i].tarih };
+      araliklar.push(fark);
+    }
+
+    return {
+      plan: {
+        baslangic: girisler[0].tarih,
+        araliklar: minDongu(araliklar),
+        tipler: minDongu(girisler.map(g => g.tip)),
+        bitis: bitis
+      }
+    };
+  }
+
+  function vardiyaDegistir(t, tip) {
+    // Plan bu güne zaten bu değeri veriyorsa istisnayı kaldır, yoksa istisna yaz
+    const istisnasiz = { ...veri.vardiyaIstisna };
+    delete istisnasiz[t];
+    const eskiIstisna = veri.vardiyaIstisna;
+    veri.vardiyaIstisna = istisnasiz;
+    vardiyalariHesapla();
+    const planDegeri = vardiyalar[t] || "izin";
+    veri.vardiyaIstisna = eskiIstisna;
+
+    if (tip === planDegeri) delete veri.vardiyaIstisna[t];
+    else veri.vardiyaIstisna[t] = tip;
+
+    kaydet();
+    vardiyalariHesapla();
+    takvimCiz();
+  }
+
   /* ============ Tarih / saat ayıklama ============ */
-  function tarihAyikla(metin) {
+  function tarihAyikla(metin, gecmisKabul) {
     const norm = normallestir(metin);
     const aylarNorm = ["ocak","subat","mart","nisan","mayis","haziran",
                        "temmuz","agustos","eylul","ekim","kasim","aralik"];
 
     let hedef = null, bas = -1, uzunluk = 0;
 
-    const re = new RegExp("(\\d{1,2})\\s*(" + aylarNorm.join("|") + ")(ta|te|da|de)?(\\s+(gunu|tarihinde))?", "");
+    const re = new RegExp("(\\d{1,2})\\s*(" + aylarNorm.join("|") + ")(ta|te|da|de)?(\\s+(\\d{4}))?(\\s+(gunu|tarihinde))?", "");
     const m = norm.match(re);
     if (m) {
       const gun = parseInt(m[1], 10);
       const ay = aylarNorm.indexOf(m[2]);
       const simdi = new Date();
-      let d = new Date(simdi.getFullYear(), ay, gun);
-      const bugun0 = new Date(simdi.getFullYear(), simdi.getMonth(), simdi.getDate());
-      if (d < bugun0) d = new Date(simdi.getFullYear() + 1, ay, gun);
+      let yil = m[5] ? parseInt(m[5], 10) : simdi.getFullYear();
+      let d = new Date(yil, ay, gun);
+      if (!m[5] && !gecmisKabul) {
+        const bugun0 = new Date(simdi.getFullYear(), simdi.getMonth(), simdi.getDate());
+        if (d < bugun0) d = new Date(simdi.getFullYear() + 1, ay, gun);
+      }
       if (d.getDate() !== gun) return null;
       hedef = tarihStr(d);
       bas = m.index; uzunluk = m[0].length;
@@ -637,11 +854,12 @@
         const vr = document.createElement("div");
         vr.className = "vardiya " + vardiya;
         vr.textContent = vardiya === "sabah" ? "Sabah" : "Akşam";
+        vr.title = vardiya === "sabah" ? "Sabahçı" : "Akşamcı";
         ust.appendChild(vr);
       }
       el.appendChild(ust);
 
-      const gunGorevleri = sirala(gorevler[t] || []);
+      const gunGorevleri = sirala(veri.gorevler[t] || []);
       for (const gv of gunGorevleri.slice(0, 2)) {
         const cip = document.createElement("div");
         cip.className = "cip" + (gv.tamam ? " tamam" : "");
@@ -653,7 +871,7 @@
       if (gunGorevleri.length > 2) {
         const fazla = document.createElement("div");
         fazla.className = "fazla";
-        fazla.textContent = "+" + (gunGorevleri.length - 2) + " daha";
+        fazla.textContent = "+" + (gunGorevleri.length - 2);
         el.appendChild(fazla);
       }
 
@@ -690,11 +908,33 @@
     const vardiya = vardiyalar[t];
     const rozet = document.createElement("span");
     rozet.className = "gk-rozet " + (vardiya || "izin");
-    rozet.textContent = vardiya ? vardiyaAd[vardiya] : "İzin günü ✅";
+    rozet.textContent = vardiya ? vardiyaAd[vardiya] : "İzin ✅";
     baslik.appendChild(rozet);
     kart.appendChild(baslik);
 
-    const gunGorevleri = sirala(gorevler[t] || []);
+    // Vardiya değiştirme (takas) satırı — plan ya da istisna varsa göster
+    if (veri.vardiyaPlani || Object.keys(veri.vardiyaIstisna || {}).length) {
+      const sec = document.createElement("div");
+      sec.className = "gk-vardiya-sec";
+      const etiket = document.createElement("span");
+      etiket.textContent = "Vardiya:";
+      sec.appendChild(etiket);
+      for (const [tip, ad] of [["sabah", "Sabah"], ["aksam", "Akşam"], ["izin", "İzin"]]) {
+        const b = document.createElement("button");
+        b.textContent = ad;
+        const suanki = vardiya || "izin";
+        if (tip === suanki) b.classList.add("aktif");
+        b.addEventListener("click", () => {
+          vardiyaDegistir(t, tip);
+          balon(uzunTarih(t) + " → " + (tip === "izin" ? "izin günü yapıldı" : (tip === "sabah" ? "sabah" : "akşam") + " vardiyası yapıldı") + ".", "asistan");
+          gunKartiGoster(t);
+        });
+        sec.appendChild(b);
+      }
+      kart.appendChild(sec);
+    }
+
+    const gunGorevleri = sirala(veri.gorevler[t] || []);
     if (gunGorevleri.length === 0) {
       const bos = document.createElement("div");
       bos.className = "gk-bos";
@@ -735,8 +975,8 @@
         sil.setAttribute("aria-label", "Sil: " + g.metin);
         sil.innerHTML = '<svg class="ikon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
         sil.addEventListener("click", () => {
-          gorevler[t] = (gorevler[t] || []).filter(x => x.id !== g.id);
-          if (gorevler[t].length === 0) delete gorevler[t];
+          veri.gorevler[t] = (veri.gorevler[t] || []).filter(x => x.id !== g.id);
+          if (veri.gorevler[t].length === 0) delete veri.gorevler[t];
           kaydet();
           takvimCiz();
           li.remove();
@@ -754,10 +994,10 @@
 
   /* ============ Komut işleme ============ */
   function gorevEkle(tarih, saat, metin) {
-    if (!gorevler[tarih]) gorevler[tarih] = [];
+    if (!veri.gorevler[tarih]) veri.gorevler[tarih] = [];
     const g = { id: Date.now(), metin, tamam: false };
     if (saat) g.saat = saat;
-    gorevler[tarih].push(g);
+    veri.gorevler[tarih].push(g);
     kaydet();
 
     seciliTarih = tarih;
@@ -780,8 +1020,8 @@
     if (kelimeler.length === 0) return [];
 
     const bulunanlar = [];
-    for (const t of Object.keys(gorevler).sort()) {
-      for (const g of gorevler[t]) {
+    for (const t of Object.keys(veri.gorevler).sort()) {
+      for (const g of veri.gorevler[t]) {
         const gNorm = normallestir(g.metin);
         if (kelimeler.some(k => gNorm.includes(k))) bulunanlar.push({ t, g });
       }
@@ -789,16 +1029,42 @@
     return bulunanlar;
   }
 
+  function gunuGoster(t) {
+    seciliTarih = t;
+    const d = new Date(t + "T00:00:00");
+    gosterilenYil = d.getFullYear(); gosterilenAy = d.getMonth();
+    takvimCiz();
+    gunKartiGoster(t);
+  }
+
   function yerelIsle(metin) {
     const norm = normallestir(metin);
+
+    // Vardiya değişikliği: "3 ağustos vardiyam akşam", "5 ağustos izinliyim", "sabahçıyım 6 ağustos"
+    let vTip = null;
+    if (/vardiy/.test(norm)) {
+      const m2 = norm.match(/\b(sabah|aksam|izin)/);
+      if (m2) vTip = m2[1];
+    } else {
+      const m2 = norm.match(/\b(sabahci|aksamci|izinli)(yim|sin|dir)?\b/);
+      if (m2) vTip = m2[1] === "sabahci" ? "sabah" : (m2[1] === "aksamci" ? "aksam" : "izin");
+    }
+    if (vTip) {
+      const tSonuc = tarihAyikla(metin);
+      if (tSonuc) {
+        vardiyaDegistir(tSonuc.tarih, vTip);
+        balon(uzunTarih(tSonuc.tarih) + " → " + (vTip === "izin" ? "izin günü" : vTip + " vardiyası") + " olarak güncellendi. 🔄", "asistan");
+        return true;
+      }
+    }
 
     // Silme: "... sil"
     if (/\bsil\b/.test(norm)) {
       const bulunanlar = gorevAra(metin);
       if (bulunanlar.length === 0) { balon("Silinecek görev bulamadım.", "asistan"); return true; }
       const { t, g } = bulunanlar[0];
-      gorevler[t] = gorevler[t].filter(x => x.id !== g.id);
-      if (gorevler[t].length === 0) delete gorevler[t];
+      veri.gorevler[t] = veri.gorevler[t].filter(x => x.id !== g.id);
+      if (veri.gorevler[t].length === 0) delete veri.gorevler[t];
       kaydet();
       takvimCiz();
       balon("Silindi: " + uzunTarih(t) + " — " + g.metin, "asistan");
@@ -811,15 +1077,9 @@
     if (tSonuc) {
       if (soruMu || !tSonuc.kalan || tSonuc.kalan.length < 3 ||
           /^(bir sey|birsey|is|isim)\b/.test(normallestir(tSonuc.kalan))) {
-        // Tarihli soru → gün kartı
-        seciliTarih = tSonuc.tarih;
-        const d = new Date(tSonuc.tarih + "T00:00:00");
-        gosterilenYil = d.getFullYear(); gosterilenAy = d.getMonth();
-        takvimCiz();
-        gunKartiGoster(tSonuc.tarih);
+        gunuGoster(tSonuc.tarih);
         return true;
       }
-      // Tarihli görev ekleme
       let kalan = tSonuc.kalan, saat = null;
       const sSonuc = saatAyikla(kalan);
       if (sSonuc && sSonuc.kalan) { saat = sSonuc.saat; kalan = sSonuc.kalan; }
@@ -827,14 +1087,12 @@
       return true;
     }
 
-    // Tarihsiz ama saatli → seçili güne ekle
     const sSonuc = saatAyikla(metin);
     if (sSonuc && sSonuc.kalan && !soruMu) {
       gorevEkle(seciliTarih, sSonuc.saat, sSonuc.kalan);
       return true;
     }
 
-    // Kelime araması ("ahmetle buluşma ne zaman?")
     if (soruMu) {
       const bulunanlar = gorevAra(metin);
       if (bulunanlar.length > 0) {
@@ -847,7 +1105,7 @@
       }
     }
 
-    return false; // yerel olarak anlaşılamadı → yapay zekâya sor
+    return false;
   }
 
   /* ============ Yapay zekâ (Puter — ücretsiz) ============ */
@@ -860,9 +1118,10 @@
         "Sen Türkçe konuşan bir takvim asistanısın. Bugünün tarihi: " + tarihStr(new Date()) +
         " (" + gunAdlari[new Date().getDay()] + "). Kullanıcının mesajını analiz et ve SADECE şu JSON'u döndür" +
         " (başka hiçbir şey yazma):\n" +
-        '{"eylem":"ekle|sorgu|bilinmiyor","tarih":"YYYY-MM-DD veya null","saat":"HH:MM veya null","metin":"görev metni veya arama kelimesi"}\n' +
-        "Kurallar: 'ekle' = kullanıcı bir görev/plan/hatırlatma eklemek istiyor. 'sorgu' = bir gün hakkında soru soruyor" +
-        " (tarih ver) ya da bir görevi arıyor (metin ver, tarih null). Göreli tarihleri hesapla (yarın, haftaya salı, 3 gün sonra...)." +
+        '{"eylem":"ekle|sorgu|vardiya|bilinmiyor","tarih":"YYYY-MM-DD veya null","saat":"HH:MM veya null","tip":"sabah|aksam|izin veya null","metin":"görev metni veya arama kelimesi"}\n' +
+        "Kurallar: 'ekle' = görev/plan/hatırlatma ekleme. 'sorgu' = bir gün hakkında soru (tarih ver) ya da görev arama" +
+        " (metin ver, tarih null). 'vardiya' = kullanıcı bir günün vardiyasını değiştiriyor (tarih + tip ver;" +
+        " sabahçı=sabah, akşamcı=aksam, izinli/tatil=izin). Göreli tarihleri hesapla (yarın, haftaya salı, 3 gün sonra...)." +
         " Tarih belirsizse bugünü kullan.\n\nKullanıcı mesajı: " + metin;
 
       const yanit = await puter.ai.chat(sistem);
@@ -874,23 +1133,23 @@
       const je = ham.match(/\{[\s\S]*\}/);
       if (!je) return false;
       const k = JSON.parse(je[0]);
+      const tarihGecerli = k.tarih && /^\d{4}-\d{2}-\d{2}$/.test(k.tarih);
 
       if (k.eylem === "ekle" && k.metin) {
-        const tarih = (k.tarih && /^\d{4}-\d{2}-\d{2}$/.test(k.tarih)) ? k.tarih : seciliTarih;
+        const tarih = tarihGecerli ? k.tarih : seciliTarih;
         const saat = (k.saat && /^\d{2}:\d{2}$/.test(k.saat)) ? k.saat : null;
         gorevEkle(tarih, saat, k.metin);
         return true;
       }
 
+      if (k.eylem === "vardiya" && tarihGecerli && ["sabah", "aksam", "izin"].includes(k.tip)) {
+        vardiyaDegistir(k.tarih, k.tip);
+        balon(uzunTarih(k.tarih) + " → " + (k.tip === "izin" ? "izin günü" : k.tip + " vardiyası") + " olarak güncellendi. 🔄", "asistan");
+        return true;
+      }
+
       if (k.eylem === "sorgu") {
-        if (k.tarih && /^\d{4}-\d{2}-\d{2}$/.test(k.tarih)) {
-          seciliTarih = k.tarih;
-          const d = new Date(k.tarih + "T00:00:00");
-          gosterilenYil = d.getFullYear(); gosterilenAy = d.getMonth();
-          takvimCiz();
-          gunKartiGoster(k.tarih);
-          return true;
-        }
+        if (tarihGecerli) { gunuGoster(k.tarih); return true; }
         if (k.metin) {
           const bulunanlar = gorevAra(k.metin);
           if (bulunanlar.length > 0) {
@@ -926,10 +1185,62 @@
       balon("Bunu anlayamadım. 🤔 Şöyle deneyebilirsin:\n" +
             "• \"1 ağustos 14:00 ahmetle buluşma\"\n" +
             "• \"5 ağustosta işim var mı?\"\n" +
-            "• \"5 gün sonra bir şey var mı?\"\n" +
+            "• \"3 ağustos vardiyam akşam oldu\"\n" +
             "• \"ahmetle buluşmayı sil\"", "asistan");
     }
   }
+
+  /* ============ Vardiya penceresi ============ */
+  const vardiyaOrt = document.getElementById("vardiyaOrt");
+  const ornekGunler = document.getElementById("ornekGunler");
+  const bitisTarihi = document.getElementById("bitisTarihi");
+  const vardiyaHata = document.getElementById("vardiyaHata");
+
+  function vardiyaPencereAc() {
+    vardiyaHata.textContent = "";
+    if (!bitisTarihi.value) {
+      const v = new Date();
+      v.setMonth(v.getMonth() + 6);
+      bitisTarihi.value = tarihStr(v);
+    }
+    vardiyaOrt.classList.add("acik");
+    ornekGunler.focus();
+  }
+
+  document.getElementById("vardiyaBtn").addEventListener("click", vardiyaPencereAc);
+  document.getElementById("vardiyaKapat").addEventListener("click", () => vardiyaOrt.classList.remove("acik"));
+  vardiyaOrt.addEventListener("click", e => { if (e.target === vardiyaOrt) vardiyaOrt.classList.remove("acik"); });
+
+  document.getElementById("vardiyaKaydet").addEventListener("click", () => {
+    vardiyaHata.textContent = "";
+    if (!bitisTarihi.value) { vardiyaHata.textContent = "Bitiş tarihi seç."; return; }
+    const sonuc = orungyuCoz(ornekGunler.value, bitisTarihi.value);
+    if (sonuc.hata) { vardiyaHata.textContent = sonuc.hata; return; }
+
+    veri.vardiyaPlani = sonuc.plan;
+    veri.vardiyaIstisna = {};
+    kaydet();
+    vardiyalariHesapla();
+    takvimCiz();
+    vardiyaOrt.classList.remove("acik");
+
+    const gunSayisi = Object.keys(vardiyalar).length;
+    balon("Vardiya örüntün çözüldü ve uygulandı. 📋\n" +
+          "• Aralıklar: " + sonuc.plan.araliklar.join("-") + " gün (dönerek)\n" +
+          "• Sıra: " + sonuc.plan.tipler.map(t => t === "sabah" ? "sabah" : "akşam").join(" → ") + "\n" +
+          "• " + uzunTarih(sonuc.plan.bitis) + " tarihine kadar " + gunSayisi + " çalışma günü işlendi.\n" +
+          "Tek günlük değişiklik için takvimden güne tıkla ya da \"3 ağustos vardiyam akşam\" yaz.", "asistan");
+  });
+
+  document.getElementById("vardiyaTemizle").addEventListener("click", () => {
+    veri.vardiyaPlani = null;
+    veri.vardiyaIstisna = {};
+    kaydet();
+    vardiyalariHesapla();
+    takvimCiz();
+    vardiyaOrt.classList.remove("acik");
+    balon("Tüm vardiyalar temizlendi.", "asistan");
+  });
 
   /* ============ Hesap (Puter — ücretsiz) ============ */
   const girisBtn = document.getElementById("girisBtn");
@@ -946,15 +1257,16 @@
   async function girisSonrasi() {
     try {
       kullanici = await puter.auth.getUser();
-      const bulut = await puter.kv.get("takvimGorevler");
+      const bulut = await puter.kv.get("takvimVeri");
       if (bulut) {
-        gorevler = JSON.parse(bulut);
-        localStorage.setItem("takvimGorevler", JSON.stringify(gorevler));
+        veri = Object.assign(varsayilanVeri(), JSON.parse(bulut));
+        localStorage.setItem("takvimVeri", JSON.stringify(veri));
       } else {
-        await puter.kv.set("takvimGorevler", JSON.stringify(gorevler));
+        await puter.kv.set("takvimVeri", JSON.stringify(veri));
       }
+      vardiyalariHesapla();
       takvimCiz();
-      balon("Hoş geldin " + (kullanici.username || "") + "! Görevlerin hesabına bağlandı — başka cihazdan girsen de aynı listeyi görürsün.", "asistan");
+      balon("Hoş geldin " + (kullanici.username || "") + "! 👋 Verilerin hesabına bağlı — başka cihazdan aynı hesapla girince aynı takvimi görürsün.", "asistan");
     } catch (e) { /* çevrimdışı devam */ }
     hesapArayuz();
   }
@@ -970,8 +1282,14 @@
   cikisBtn.addEventListener("click", () => {
     if (window.puter) puter.auth.signOut();
     kullanici = null;
+    // Sıradaki kullanıcı temiz sayfa görsün: yerel kopya temizlenir, veriler hesapta durur
+    veri = varsayilanVeri();
+    localStorage.removeItem("takvimVeri");
+    vardiyalariHesapla();
+    takvimCiz();
     hesapArayuz();
-    balon("Çıkış yapıldı. Görevler bu cihazda kayıtlı kalır.", "asistan");
+    mesajlarEl.innerHTML = "";
+    balon("Çıkış yapıldı. Verilerin hesabında güvende — tekrar giriş yapınca geri gelir.", "asistan");
   });
 
   /* ============ Tema ============ */
@@ -1022,8 +1340,14 @@
     gunKartiGoster(seciliTarih);
   });
 
+  vardiyalariHesapla();
   takvimCiz();
-  balon("Merhaba! 👋 Görev eklemek ya da takvimini sormak için yaz. Takvimden bir güne tıklayınca o günü burada gösteririm.", "asistan");
+
+  if (veri.vardiyaPlani) {
+    balon("Merhaba! 👋 Görev eklemek ya da takvimini sormak için yaz.", "asistan");
+  } else {
+    balon("Merhaba! 👋 Görev eklemek için yazman yeterli (ör: \"1 ağustos 14:00 toplantı\").\n\nVardiyalı çalışıyorsan sağ üstteki ⚙ Vardiya düğmesine tıklayıp birkaç örnek gün yaz — örüntünü çözüp takvimine işlerim.", "asistan");
+  }
 
   if (window.puter && puter.auth && puter.auth.isSignedIn()) {
     girisSonrasi();
