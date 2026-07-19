@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Takvimli Yapılacaklar Listesi</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#667eea">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Takvim">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 24px 12px;
+  }
+
+  .sayfa {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    max-width: 1100px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .panel {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0,0,0,.25);
+    padding: 22px;
+  }
+
+  /* ---- Takvim ---- */
+  .takvim { flex: 2; min-width: 340px; }
+
+  .takvim-baslik {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+
+  .takvim-baslik h1 {
+    font-size: 1.25rem;
+    color: #333;
+    text-transform: capitalize;
+  }
+
+  .takvim-baslik .nav { display: flex; gap: 6px; }
+
+  .takvim-baslik button {
+    border: 1px solid #ddd;
+    background: #fff;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: .95rem;
+    cursor: pointer;
+    color: #555;
+    transition: all .15s;
+  }
+
+  .takvim-baslik button:hover { background: #667eea; color: #fff; border-color: #667eea; }
+
+  .lejant {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 10px;
+    font-size: .78rem;
+    color: #666;
+    align-items: center;
+  }
+
+  .lejant .kutu {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    margin-right: 4px;
+    vertical-align: -1px;
+  }
+
+  .kutu.sabah-r { background: #ffb020; }
+  .kutu.aksam-r { background: #4a4e8f; }
+
+  .gun-adlari, .gunler {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+  }
+
+  .gun-adlari {
+    margin-bottom: 6px;
+    text-align: center;
+    font-size: .75rem;
+    font-weight: 600;
+    color: #999;
+    text-transform: uppercase;
+  }
+
+  .gun {
+    aspect-ratio: 1 / 1;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 5px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow: hidden;
+    transition: all .15s;
+    background: #fff;
+    position: relative;
+  }
+
+  .gun:hover { border-color: #667eea; box-shadow: 0 2px 8px rgba(102,126,234,.25); }
+
+  .gun.bos-gun { border: none; cursor: default; background: transparent; }
+  .gun.bos-gun:hover { box-shadow: none; }
+
+  .gun .ust {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2px;
+  }
+
+  .gun .no {
+    font-size: .85rem;
+    font-weight: 600;
+    color: #444;
+  }
+
+  .gun.bugun { background: #eef1ff; border-color: #667eea; }
+  .gun.bugun .no {
+    background: #667eea;
+    color: #fff;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .75rem;
+  }
+
+  .gun.secili {
+    border: 2px solid #764ba2;
+    box-shadow: 0 0 0 3px rgba(118,75,162,.2);
+  }
+
+  /* Vardiya rozetleri */
+  .gun .vardiya {
+    font-size: .58rem;
+    font-weight: 700;
+    border-radius: 4px;
+    padding: 1px 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .vardiya.sabah { background: #fff0d0; color: #b06d00; }
+  .vardiya.aksam { background: #e2e3f5; color: #3c3f7a; }
+
+  .gun.v-sabah { background: #fffaf0; border-color: #ffd98a; }
+  .gun.v-aksam { background: #f4f4fb; border-color: #b9bce0; }
+  .gun.v-sabah.bugun, .gun.v-aksam.bugun { border-color: #667eea; }
+
+  .gun .cip {
+    font-size: .62rem;
+    background: #667eea;
+    color: #fff;
+    border-radius: 4px;
+    padding: 1px 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .gun .cip.tamam {
+    background: #c7cdea;
+    text-decoration: line-through;
+  }
+
+  .gun .fazla {
+    font-size: .62rem;
+    color: #667eea;
+    font-weight: 600;
+  }
+
+  /* ---- Sağ panel + sekmeler ---- */
+  .gun-paneli { flex: 1; min-width: 300px; }
+
+  .sekmeler {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+    background: #f2f2f7;
+    border-radius: 10px;
+    padding: 4px;
+  }
+
+  .sekmeler button {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 8px 4px;
+    border-radius: 8px;
+    font-size: .9rem;
+    cursor: pointer;
+    color: #666;
+    font-weight: 600;
+    transition: all .15s;
+  }
+
+  .sekmeler button.aktif {
+    background: #667eea;
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(102,126,234,.4);
+  }
+
+  .gun-paneli h2 {
+    font-size: 1.05rem;
+    color: #333;
+    margin-bottom: 6px;
+  }
+
+  .panel-vardiya {
+    display: inline-block;
+    font-size: .8rem;
+    font-weight: 700;
+    border-radius: 6px;
+    padding: 3px 10px;
+    margin-bottom: 14px;
+  }
+
+  .panel-vardiya.sabah { background: #fff0d0; color: #b06d00; }
+  .panel-vardiya.aksam { background: #e2e3f5; color: #3c3f7a; }
+  .panel-vardiya.yok { background: #edf7ed; color: #2e7d32; }
+
+  .input-row { display: flex; gap: 8px; margin-bottom: 6px; }
+
+  .input-row input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: .95rem;
+    outline: none;
+    transition: border-color .2s;
+    min-width: 0;
+  }
+
+  .input-row input:focus { border-color: #667eea; }
+
+  .input-row button {
+    padding: 10px 18px;
+    background: #667eea;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: .95rem;
+    cursor: pointer;
+    transition: background .2s;
+  }
+
+  .input-row button:hover { background: #5568d3; }
+
+  .ipucu {
+    font-size: .74rem;
+    color: #999;
+    margin-bottom: 14px;
+  }
+
+  ul { list-style: none; }
+
+  li.gorev {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 6px;
+    border-bottom: 1px solid #f0f0f0;
+    animation: gel .2s ease;
+  }
+
+  @keyframes gel {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  li.gorev input[type="checkbox"] {
+    width: 19px;
+    height: 19px;
+    accent-color: #667eea;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  li.gorev .metin { flex: 1; color: #333; word-break: break-word; font-size: .95rem; }
+
+  li.gorev.tamamlandi .metin { text-decoration: line-through; color: #aaa; }
+
+  .saat-rozet {
+    background: #667eea;
+    color: #fff;
+    font-size: .72rem;
+    font-weight: 700;
+    border-radius: 5px;
+    padding: 2px 6px;
+    flex-shrink: 0;
+  }
+
+  li.gorev.tamamlandi .saat-rozet { background: #c7cdea; }
+
+  li.gorev .sil {
+    background: none;
+    border: none;
+    color: #ccc;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 3px 7px;
+    border-radius: 6px;
+    transition: all .2s;
+    flex-shrink: 0;
+  }
+
+  li.gorev .sil:hover { color: #e74c3c; background: #fdecea; }
+
+  .bos-mesaj { text-align: center; color: #aaa; padding: 20px 0; font-size: .9rem; }
+
+  .alt-bilgi {
+    margin-top: 12px;
+    font-size: .82rem;
+    color: #888;
+    text-align: center;
+  }
+
+  /* ---- Soru / komut ekranı ---- */
+  #sohbet {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 420px;
+    overflow-y: auto;
+    margin-bottom: 12px;
+    padding-right: 4px;
+  }
+
+  .balon {
+    max-width: 90%;
+    padding: 9px 12px;
+    border-radius: 12px;
+    font-size: .88rem;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    word-break: break-word;
+    animation: gel .2s ease;
+  }
+
+  .balon.soru {
+    align-self: flex-end;
+    background: #667eea;
+    color: #fff;
+    border-bottom-right-radius: 3px;
+  }
+
+  .balon.cevap {
+    align-self: flex-start;
+    background: #f2f2f7;
+    color: #333;
+    border-bottom-left-radius: 3px;
+  }
+
+  .sohbet-bos {
+    color: #aaa;
+    font-size: .85rem;
+    text-align: center;
+    padding: 16px 8px;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 720px) {
+    .sayfa { flex-direction: column; }
+    .takvim, .gun-paneli { width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="sayfa">
+
+  <div class="panel takvim">
+    <div class="takvim-baslik">
+      <h1 id="ayBaslik"></h1>
+      <div class="nav">
+        <button id="oncekiBtn" title="Önceki ay">‹</button>
+        <button id="bugunBtn">Bugün</button>
+        <button id="sonrakiBtn" title="Sonraki ay">›</button>
+      </div>
+    </div>
+    <div class="lejant">
+      <span><span class="kutu sabah-r"></span>Sabahçı</span>
+      <span><span class="kutu aksam-r"></span>Akşamcı</span>
+    </div>
+    <div class="gun-adlari">
+      <div>Pzt</div><div>Sal</div><div>Çar</div><div>Per</div><div>Cum</div><div>Cmt</div><div>Paz</div>
+    </div>
+    <div class="gunler" id="gunler"></div>
+  </div>
+
+  <div class="panel gun-paneli">
+
+    <div class="sekmeler">
+      <button id="sekmeGorev" class="aktif">📝 Görev</button>
+      <button id="sekmeSoru">💬 Soru</button>
+    </div>
+
+    <!-- Görev ekranı -->
+    <div id="tabGorev">
+      <h2 id="seciliGunBaslik"></h2>
+      <div id="panelVardiya"></div>
+      <div class="input-row">
+        <input id="gorevInput" type="text" placeholder="Görev ekle...">
+        <button id="ekleBtn">Ekle</button>
+      </div>
+      <div class="ipucu">💡 Tarih ve saat de anlar: "1 ağustos 14:00 ahmetle buluşma", "yarın saat 9 kargo"</div>
+      <ul id="liste"></ul>
+      <div class="alt-bilgi" id="sayac"></div>
+    </div>
+
+    <!-- Soru / komut ekranı -->
+    <div id="tabSoru" hidden>
+      <div id="sohbet">
+        <div class="sohbet-bos">
+          Bana takvimini sorabilirsin:<br>
+          "5 ağustosta işim var mı?"<br>
+          "5 gün sonra bir şey var mı?"<br>
+          "yarın ne var?"<br>
+          "ahmetle buluşma ne zaman?"
+        </div>
+      </div>
+      <div class="input-row">
+        <input id="soruInput" type="text" placeholder="ör: 5 ağustosta işim var mı?">
+        <button id="sorBtn">Sor</button>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  /* =====================================================================
+     VARDİYA PLANI — vardiya değişince SADECE bu blok güncellenir.
+     Kural: baslangic gününden itibaren araliklar dizisindeki gün
+     aralıkları sırayla (dönerek) uygulanır; vardiya tipi de tipler
+     dizisinde sırayla döner. bitis dahil o tarihe kadar hesaplanır.
+
+     Mevcut plan (19 Temmuz 2026'da tanımlandı):
+       22 Tem sabah → +2 gün akşam → +3 gün sabah → +2 gün akşam → ...
+     ===================================================================== */
+  const vardiyaPlani = {
+    baslangic: "2026-07-22",   // ilk çalışma günü
+    araliklar: [2, 3],         // çalışma günleri arası gün farkları (dönerek)
+    tipler: ["sabah", "aksam"],// dönüşümlü vardiya tipleri
+    bitis: "2027-01-01"        // bu tarihe kadar (dahil) doldur
+  };
+
+  const vardiyaAd = { sabah: "🌅 Sabahçı", aksam: "🌙 Akşamcı" };
+
+  // vardiyalar: { "2026-07-22": "sabah", "2026-07-24": "aksam", ... }
+  const vardiyalar = {};
+  (function hesaplaVardiyalar() {
+    const bitis = new Date(vardiyaPlani.bitis + "T00:00:00");
+    let d = new Date(vardiyaPlani.baslangic + "T00:00:00");
+    let i = 0;
+    while (d <= bitis) {
+      vardiyalar[tarihStr(d)] = vardiyaPlani.tipler[i % vardiyaPlani.tipler.length];
+      d = new Date(d);
+      d.setDate(d.getDate() + vardiyaPlani.araliklar[i % vardiyaPlani.araliklar.length]);
+      i++;
+    }
+  })();
+
+  // gorevler: { "2026-07-19": [ {id, metin, tamam, saat?}, ... ], ... }
+  let gorevler = JSON.parse(localStorage.getItem("takvimGorevler") || "{}");
+
+  const bugun = new Date();
+  let gosterilenYil = bugun.getFullYear();
+  let gosterilenAy = bugun.getMonth();
+  let seciliTarih = tarihStr(bugun);
+
+  const aylar = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
+  const gunAdlari = ["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"];
+
+  const gunlerEl = document.getElementById("gunler");
+  const ayBaslik = document.getElementById("ayBaslik");
+  const seciliGunBaslik = document.getElementById("seciliGunBaslik");
+  const panelVardiya = document.getElementById("panelVardiya");
+  const input = document.getElementById("gorevInput");
+  const liste = document.getElementById("liste");
+  const sayac = document.getElementById("sayac");
+  const sohbet = document.getElementById("sohbet");
+  const soruInput = document.getElementById("soruInput");
+
+  function tarihStr(d) {
+    const a = String(d.getMonth() + 1).padStart(2, "0");
+    const g = String(d.getDate()).padStart(2, "0");
+    return d.getFullYear() + "-" + a + "-" + g;
+  }
+
+  function uzunTarih(t) {
+    const d = new Date(t + "T00:00:00");
+    return d.getDate() + " " + aylar[d.getMonth()] + " " + d.getFullYear() + " " + gunAdlari[d.getDay()];
+  }
+
+  function kaydet() {
+    localStorage.setItem("takvimGorevler", JSON.stringify(gorevler));
+  }
+
+  // Türkçe karakterleri sadeleştir — uzunluk değişmez, indeksler korunur
+  function normallestir(metin) {
+    return metin.toLocaleLowerCase("tr")
+      .replace(/ğ/g, "g").replace(/ü/g, "u").replace(/ş/g, "s")
+      .replace(/ı/g, "i").replace(/ö/g, "o").replace(/ç/g, "c")
+      .replace(/['’]/g, " ");
+  }
+
+  /* Metinden tarih ayıklar: "1 ağustos", "5 agustosta", "bugün", "yarın".
+     Bulursa { tarih: "YYYY-MM-DD", kalan } döner, yoksa null. */
+  function tarihAyikla(metin) {
+    const norm = normallestir(metin);
+    const aylarNorm = ["ocak","subat","mart","nisan","mayis","haziran",
+                       "temmuz","agustos","eylul","ekim","kasim","aralik"];
+
+    let hedef = null, bas = -1, uzunluk = 0;
+
+    // "22 temmuz", "5 agustosta", peşinden istenirse "günü/tarihinde"
+    const re = new RegExp("(\\d{1,2})\\s*(" + aylarNorm.join("|") + ")(ta|te|da|de)?(\\s+(gunu|tarihinde))?", "");
+    const m = norm.match(re);
+    if (m) {
+      const gun = parseInt(m[1], 10);
+      const ay = aylarNorm.indexOf(m[2]);
+      const simdi = new Date();
+      let d = new Date(simdi.getFullYear(), ay, gun);
+      const bugun0 = new Date(simdi.getFullYear(), simdi.getMonth(), simdi.getDate());
+      if (d < bugun0) d = new Date(simdi.getFullYear() + 1, ay, gun);
+      if (d.getDate() !== gun) return null; // 31 şubat gibi geçersiz gün
+      hedef = tarihStr(d);
+      bas = m.index; uzunluk = m[0].length;
+    } else {
+      // "5 gün sonra", "2 hafta sonra"
+      const mSonra = norm.match(/(^|\s)(\d{1,2})\s+(gun|hafta)\s+sonra(ki|si)?(\s|$)/);
+      if (mSonra) {
+        const n = parseInt(mSonra[2], 10) * (mSonra[3] === "hafta" ? 7 : 1);
+        const d = new Date();
+        d.setDate(d.getDate() + n);
+        hedef = tarihStr(d);
+        bas = mSonra.index + mSonra[1].length;
+        uzunluk = mSonra[0].length - mSonra[1].length - (mSonra[5] ? mSonra[5].length : 0);
+      } else {
+        const mGun = norm.match(/(^|\s)(bugun|yarin)(de|ku|ki)?(\s|$)/);
+        if (mGun) {
+          const d = new Date();
+          if (mGun[2] === "yarin") d.setDate(d.getDate() + 1);
+          hedef = tarihStr(d);
+          bas = mGun.index + mGun[1].length;
+          uzunluk = mGun[2].length + (mGun[3] ? mGun[3].length : 0);
+        }
+      }
+    }
+
+    if (!hedef) return null;
+
+    const kalan = (metin.slice(0, bas) + " " + metin.slice(bas + uzunluk))
+      .replace(/\s+/g, " ").trim();
+
+    return { tarih: hedef, kalan };
+  }
+
+  /* Metinden saat ayıklar: "14:00", "14.30", "saat 14", "saat 9".
+     Bulursa { saat: "HH:MM", kalan } döner, yoksa null. */
+  function saatAyikla(metin) {
+    const norm = normallestir(metin);
+
+    let m = norm.match(/(^|\s)([01]?\d|2[0-3])[:.]([0-5]\d)(\s|$)/);
+    if (m) {
+      const saat = m[2].padStart(2, "0") + ":" + m[3];
+      const bas = m.index + m[1].length;
+      const uzunluk = m[2].length + 1 + m[3].length;
+      const kalan = (metin.slice(0, bas) + " " + metin.slice(bas + uzunluk))
+        .replace(/\s+/g, " ").trim();
+      return { saat, kalan };
+    }
+
+    m = norm.match(/(^|\s)saat\s+([01]?\d|2[0-3])(\s|$)/);
+    if (m) {
+      const saat = m[2].padStart(2, "0") + ":00";
+      const bas = m.index + m[1].length;
+      const uzunluk = ("saat " + m[2]).length + (norm.slice(m.index + m[1].length).startsWith("saat  ") ? 1 : 0);
+      const kalan = (metin.slice(0, bas) + " " + metin.slice(bas + uzunluk))
+        .replace(/\s+/g, " ").trim();
+      return { saat, kalan };
+    }
+
+    return null;
+  }
+
+  // Saatli görevler önce (saate göre sıralı), saatsizler sonra
+  function sirala(list) {
+    return [...list].sort((a, b) => {
+      if (a.saat && b.saat) return a.saat.localeCompare(b.saat);
+      if (a.saat) return -1;
+      if (b.saat) return 1;
+      return 0;
+    });
+  }
+
+  function takvimCiz() {
+    ayBaslik.textContent = aylar[gosterilenAy] + " " + gosterilenYil;
+    gunlerEl.innerHTML = "";
+
+    const ilkGun = new Date(gosterilenYil, gosterilenAy, 1);
+    const gunSayisi = new Date(gosterilenYil, gosterilenAy + 1, 0).getDate();
+    // Pazartesi = 0 olacak şekilde kaydır
+    const baslangicBoslugu = (ilkGun.getDay() + 6) % 7;
+
+    for (let i = 0; i < baslangicBoslugu; i++) {
+      const bos = document.createElement("div");
+      bos.className = "gun bos-gun";
+      gunlerEl.appendChild(bos);
+    }
+
+    const bugunStr = tarihStr(new Date());
+
+    for (let g = 1; g <= gunSayisi; g++) {
+      const t = tarihStr(new Date(gosterilenYil, gosterilenAy, g));
+      const el = document.createElement("div");
+      el.className = "gun";
+      if (t === bugunStr) el.classList.add("bugun");
+      if (t === seciliTarih) el.classList.add("secili");
+
+      const vardiya = vardiyalar[t];
+      if (vardiya) el.classList.add("v-" + vardiya);
+
+      const ust = document.createElement("div");
+      ust.className = "ust";
+
+      const no = document.createElement("div");
+      no.className = "no";
+      no.textContent = g;
+      ust.appendChild(no);
+
+      if (vardiya) {
+        const vr = document.createElement("div");
+        vr.className = "vardiya " + vardiya;
+        vr.textContent = vardiya === "sabah" ? "Sabah" : "Akşam";
+        ust.appendChild(vr);
+      }
+      el.appendChild(ust);
+
+      const gunGorevleri = sirala(gorevler[t] || []);
+      const gosterilecek = gunGorevleri.slice(0, 2);
+      for (const gv of gosterilecek) {
+        const cip = document.createElement("div");
+        cip.className = "cip" + (gv.tamam ? " tamam" : "");
+        const yazi = (gv.saat ? gv.saat + " " : "") + gv.metin;
+        cip.textContent = yazi;
+        cip.title = yazi;
+        el.appendChild(cip);
+      }
+      if (gunGorevleri.length > 2) {
+        const fazla = document.createElement("div");
+        fazla.className = "fazla";
+        fazla.textContent = "+" + (gunGorevleri.length - 2) + " daha";
+        el.appendChild(fazla);
+      }
+
+      el.addEventListener("click", () => {
+        seciliTarih = t;
+        sekmeSec("gorev");
+        takvimCiz();
+        listeCiz();
+        input.focus();
+      });
+
+      gunlerEl.appendChild(el);
+    }
+  }
+
+  function listeCiz() {
+    seciliGunBaslik.textContent = "📅 " + uzunTarih(seciliTarih);
+
+    const vardiya = vardiyalar[seciliTarih];
+    if (vardiya) {
+      panelVardiya.innerHTML = '<span class="panel-vardiya ' + vardiya + '">' +
+        vardiyaAd[vardiya] + ' çalışıyorsun</span>';
+    } else {
+      panelVardiya.innerHTML = '<span class="panel-vardiya yok">✅ İzin günü</span>';
+    }
+
+    liste.innerHTML = "";
+    const gunGorevleri = sirala(gorevler[seciliTarih] || []);
+
+    if (gunGorevleri.length === 0) {
+      liste.innerHTML = '<li class="bos-mesaj">Bu güne henüz görev eklenmedi</li>';
+    }
+
+    for (const g of gunGorevleri) {
+      const li = document.createElement("li");
+      li.className = "gorev" + (g.tamam ? " tamamlandi" : "");
+
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = g.tamam;
+      cb.addEventListener("change", () => {
+        g.tamam = cb.checked;
+        kaydet();
+        takvimCiz();
+        listeCiz();
+      });
+
+      if (g.saat) {
+        const rozet = document.createElement("span");
+        rozet.className = "saat-rozet";
+        rozet.textContent = g.saat;
+        li.appendChild(cb);
+        li.appendChild(rozet);
+      } else {
+        li.appendChild(cb);
+      }
+
+      const span = document.createElement("span");
+      span.className = "metin";
+      span.textContent = g.metin;
+
+      const sil = document.createElement("button");
+      sil.className = "sil";
+      sil.textContent = "✕";
+      sil.title = "Sil";
+      sil.addEventListener("click", () => {
+        gorevler[seciliTarih] = (gorevler[seciliTarih] || []).filter(x => x.id !== g.id);
+        if (gorevler[seciliTarih].length === 0) delete gorevler[seciliTarih];
+        kaydet();
+        takvimCiz();
+        listeCiz();
+      });
+
+      li.append(span, sil);
+      liste.appendChild(li);
+    }
+
+    const kalanSayi = gunGorevleri.filter(g => !g.tamam).length;
+    sayac.textContent = gunGorevleri.length === 0
+      ? ""
+      : kalanSayi + " görev kaldı / toplam " + gunGorevleri.length;
+  }
+
+  function ekle() {
+    let metin = input.value.trim();
+    if (!metin) return;
+
+    let hedefTarih = seciliTarih;
+    let saat = null;
+
+    const tSonuc = tarihAyikla(metin);
+    if (tSonuc && tSonuc.kalan) {
+      hedefTarih = tSonuc.tarih;
+      metin = tSonuc.kalan;
+    }
+
+    const sSonuc = saatAyikla(metin);
+    if (sSonuc && sSonuc.kalan) {
+      saat = sSonuc.saat;
+      metin = sSonuc.kalan;
+    }
+
+    if (!metin) return;
+
+    if (!gorevler[hedefTarih]) gorevler[hedefTarih] = [];
+    const g = { id: Date.now(), metin, tamam: false };
+    if (saat) g.saat = saat;
+    gorevler[hedefTarih].push(g);
+    input.value = "";
+    kaydet();
+
+    // Takvimi eklenen güne götür
+    seciliTarih = hedefTarih;
+    const d = new Date(hedefTarih + "T00:00:00");
+    gosterilenYil = d.getFullYear();
+    gosterilenAy = d.getMonth();
+
+    takvimCiz();
+    listeCiz();
+  }
+
+  /* ---- Soru / komut ekranı ---- */
+
+  function gunRaporu(t) {
+    const satirlar = ["📅 " + uzunTarih(t)];
+
+    const vardiya = vardiyalar[t];
+    if (vardiya) {
+      satirlar.push(vardiyaAd[vardiya] + " çalışıyorsun.");
+    } else {
+      satirlar.push("✅ O gün izinlisin, vardiyan yok.");
+    }
+
+    const gunGorevleri = sirala(gorevler[t] || []);
+    if (gunGorevleri.length === 0) {
+      satirlar.push("Görev yok.");
+    } else {
+      satirlar.push("Görevlerin (" + gunGorevleri.length + "):");
+      for (const g of gunGorevleri) {
+        satirlar.push("• " + (g.saat ? g.saat + " — " : "") + g.metin + (g.tamam ? " ✔" : ""));
+      }
+    }
+    return satirlar.join("\n");
+  }
+
+  function gorevAra(soru) {
+    const durak = new Set(["ne","zaman","hangi","gun","gunu","gunde","var","yok","mi","mu","isim","gorev",
+                           "gorevim","gorevlerim","benim","neler","nasil","kac","tarihte","tarihinde","icin"]);
+    const kelimeler = normallestir(soru)
+      .replace(/[?.,!]/g, " ")
+      .split(/\s+/)
+      .filter(k => k.length >= 3 && !durak.has(k));
+
+    if (kelimeler.length === 0) return null;
+
+    const bulunanlar = [];
+    const tarihler = Object.keys(gorevler).sort();
+    for (const t of tarihler) {
+      for (const g of gorevler[t]) {
+        const gNorm = normallestir(g.metin);
+        if (kelimeler.some(k => gNorm.includes(k))) {
+          bulunanlar.push({ t, g });
+        }
+      }
+    }
+
+    if (bulunanlar.length === 0) return null;
+
+    const satirlar = ["🔎 Şunları buldum:"];
+    for (const { t, g } of bulunanlar.slice(0, 10)) {
+      satirlar.push("• " + uzunTarih(t) + (g.saat ? " " + g.saat : "") + " — " + g.metin + (g.tamam ? " ✔" : ""));
+    }
+    if (bulunanlar.length > 10) satirlar.push("... ve " + (bulunanlar.length - 10) + " tane daha.");
+    return satirlar.join("\n");
+  }
+
+  function cevapla(soru) {
+    // 1) Soruda tarih varsa o günün raporunu ver
+    const tSonuc = tarihAyikla(soru);
+    if (tSonuc) return gunRaporu(tSonuc.tarih);
+
+    // 2) Anahtar kelimeyle görev ara ("ahmetle buluşma ne zaman?")
+    const arama = gorevAra(soru);
+    if (arama) return arama;
+
+    // 3) Anlaşılamadı
+    return "Bunu anlayamadım. 🤔 Şöyle sorabilirsin:\n" +
+           "• \"5 ağustosta işim var mı?\"\n" +
+           "• \"5 gün sonra bir şey var mı?\"\n" +
+           "• \"yarın ne var?\"\n" +
+           "• \"ahmetle buluşma ne zaman?\"";
+  }
+
+  function balonEkle(metin, tip) {
+    const bos = sohbet.querySelector(".sohbet-bos");
+    if (bos) bos.remove();
+    const b = document.createElement("div");
+    b.className = "balon " + tip;
+    b.textContent = metin;
+    sohbet.appendChild(b);
+    sohbet.scrollTop = sohbet.scrollHeight;
+  }
+
+  function sor() {
+    const soru = soruInput.value.trim();
+    if (!soru) return;
+    soruInput.value = "";
+    balonEkle(soru, "soru");
+    balonEkle(cevapla(soru), "cevap");
+  }
+
+  /* ---- Sekmeler ---- */
+  function sekmeSec(ad) {
+    document.getElementById("tabGorev").hidden = ad !== "gorev";
+    document.getElementById("tabSoru").hidden = ad !== "soru";
+    document.getElementById("sekmeGorev").classList.toggle("aktif", ad === "gorev");
+    document.getElementById("sekmeSoru").classList.toggle("aktif", ad === "soru");
+  }
+
+  document.getElementById("sekmeGorev").addEventListener("click", () => { sekmeSec("gorev"); input.focus(); });
+  document.getElementById("sekmeSoru").addEventListener("click", () => { sekmeSec("soru"); soruInput.focus(); });
+
+  document.getElementById("ekleBtn").addEventListener("click", ekle);
+  input.addEventListener("keydown", e => { if (e.key === "Enter") ekle(); });
+
+  document.getElementById("sorBtn").addEventListener("click", sor);
+  soruInput.addEventListener("keydown", e => { if (e.key === "Enter") sor(); });
+
+  document.getElementById("oncekiBtn").addEventListener("click", () => {
+    gosterilenAy--;
+    if (gosterilenAy < 0) { gosterilenAy = 11; gosterilenYil--; }
+    takvimCiz();
+  });
+
+  document.getElementById("sonrakiBtn").addEventListener("click", () => {
+    gosterilenAy++;
+    if (gosterilenAy > 11) { gosterilenAy = 0; gosterilenYil++; }
+    takvimCiz();
+  });
+
+  document.getElementById("bugunBtn").addEventListener("click", () => {
+    gosterilenYil = bugun.getFullYear();
+    gosterilenAy = bugun.getMonth();
+    seciliTarih = tarihStr(new Date());
+    takvimCiz();
+    listeCiz();
+  });
+
+  takvimCiz();
+  listeCiz();
+
+  // Çevrimdışı çalışma için service worker
+  if ("serviceWorker" in navigator && location.protocol === "https:") {
+    navigator.serviceWorker.register("sw.js");
+  }
+</script>
+</body>
+</html>
