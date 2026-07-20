@@ -1,6 +1,6 @@
 // Basit çevrimdışı önbellek — sürüm numarasını artırınca eski önbellek temizlenir
-const SURUM = "takvim-v7";
-const DOSYALAR = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"];
+const SURUM = "takvim-v8";
+const DOSYALAR = ["./", "./index.html", "./admin.html", "./manifest.json", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(SURUM).then(c => c.addAll(DOSYALAR)));
@@ -16,7 +16,7 @@ self.addEventListener("activate", e => {
 });
 
 // Önce ağdan dene (güncel sürüm gelsin), olmazsa önbellekten ver.
-// Sadece kendi dosyalarımızı önbelleğe al (Puter/Google Fonts gibi dış istekler hariç).
+// Sadece kendi dosyalarımızı önbelleğe al (Supabase/CDN istekleri hariç).
 self.addEventListener("fetch", e => {
   if (!e.request.url.startsWith(self.location.origin)) return;
   e.respondWith(
