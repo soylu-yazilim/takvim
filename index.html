@@ -268,12 +268,12 @@
   .balon.ben { align-self: flex-end; background: var(--primary); color: var(--on-primary); border-bottom-right-radius: 4px; }
   .balon.asistan { align-self: flex-start; background: var(--muted); color: var(--fg); border-bottom-left-radius: 4px; }
 
-  /* Gün kartı — renkler bilerek açıkça verildi (mobil tarayıcı uyumluluğu) */
+  /* Gün kartı — renkler bilerek açıkça verildi; overflow/köşe kırpması
+     bazı telefon GPU'larında içeriği sildiği için kullanılmıyor */
   .gun-karti {
     align-self: stretch;
     border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
+    border-radius: 8px;
     background: var(--surface);
     color: var(--fg);
     font-size: .86rem;
@@ -625,7 +625,7 @@
   const ADMIN_EPOSTA = "muh.safasoylu@gmail.com";
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  const UYGULAMA_SURUMU = "v8";
+  const UYGULAMA_SURUMU = "v9";
 
   /* ============ Veri modeli ============
      veri = { gorevler, vardiyaPlani, vardiyaIstisna }
@@ -1035,13 +1035,42 @@
     return b;
   }
 
+  // Dokunmatik cihazlarda gün bilgisi düz metin balonu olarak gösterilir:
+  // etkileşimli kart bazı telefon GPU'larında bozuk çiziliyordu, balonların
+  // sağlam çalıştığı ise kanıtlandı.
+  const dokunmatik = window.matchMedia("(pointer: coarse)").matches;
+
   function gunKartiGoster(t) {
     try {
-      gunKartiOlustur(t);
+      if (dokunmatik) gunMetniGoster(t);
+      else gunKartiOlustur(t);
     } catch (e) {
       balon("Uyarı: Gün kartı gösterilemedi (" + (e && e.message ? e.message : e) + "). " +
             "Lütfen bu mesajın ekran görüntüsünü paylaş.", "asistan");
     }
+  }
+
+  function gunMetniGoster(t) {
+    const satirlar = [uzunTarih(t)];
+
+    const vardiya = vardiyalar[t];
+    if (veri.vardiyaPlani || Object.keys(veri.vardiyaIstisna || {}).length) {
+      satirlar.push("Vardiya: " + (vardiya ? vardiyaAd[vardiya] : "İzin"));
+    }
+    if (ozelGunler[t]) satirlar.push("Özel gün: " + ozelGunler[t]);
+
+    const gunGorevleri = sirala(veri.gorevler[t] || []);
+    if (gunGorevleri.length === 0) {
+      satirlar.push("Görev yok.");
+    } else {
+      satirlar.push("Görevler:");
+      for (const g of gunGorevleri) {
+        satirlar.push("- " + (g.saat ? g.saat + " " : "") + g.metin + (g.tamam ? " (tamamlandı)" : ""));
+      }
+      satirlar.push("");
+      satirlar.push('İşaretlemek için "... tamamladım", silmek için "... sil" yazabilirsin.');
+    }
+    balon(satirlar.join("\n"), "asistan");
   }
 
   function gunKartiOlustur(t) {
@@ -1340,7 +1369,94 @@
     return false;
   }
 
-  function gonder() {
+  /* ============ Yapay zekâ (Supabase Edge Function + Gemini) ============ */
+  async function aiIsle(metin) {
+    if (!kullanici) return false;
+
+    const dusunce = balon("düşünüyor...", "asistan");
+    try {
+      const sistem =
+        "Sen Türkçe konuşan bir takvim asistanısın. Bugünün tarihi: " + tarihStr(new Date()) +
+        " (" + gunAdlari[new Date().getDay()] + "). Kullanıcının mesajını analiz et ve SADECE şu JSON'u döndür" +
+        " (başka hiçbir şey yazma):\n" +
+        '{"eylem":"ekle|sorgu|vardiya|takas|tamamla|bilinmiyor","tarih":"YYYY-MM-DD veya null","tarih2":"YYYY-MM-DD veya null","saat":"HH:MM veya null","tip":"sabah|aksam|izin veya null","metin":"görev metni veya arama kelimesi"}\n' +
+        "Kurallar: 'ekle' = görev/plan/hatırlatma ekleme. 'sorgu' = bir gün hakkında soru (tarih ver) ya da görev arama" +
+        " (metin ver, tarih null). 'vardiya' = bir günün vardiyası değişiyor (tarih + tip; sabahçı=sabah, akşamcı=aksam," +
+        " izinli/tatil=izin). 'takas' = iki günün vardiyası karşılıklı değişiyor (tarih + tarih2). 'tamamla' = kullanıcı" +
+        " bir görevi bitirdiğini söylüyor (metin ver). Göreli tarihleri hesapla (yarın, haftaya salı, 3 gün sonra...)." +
+        " Tarih belirsizse bugünü kullan.";
+
+      const { data, error } = await sb.functions.invoke("ai", {
+        body: { sistem: sistem, mesaj: metin }
+      });
+      dusunce.remove();
+      if (error || !data || !data.yanit) return false;
+
+      const je = String(data.yanit).match(/\{[\s\S]*\}/);
+      if (!je) return false;
+      const k = JSON.parse(je[0]);
+      const tarihGecerli = k.tarih && /^\d{4}-\d{2}-\d{2}$/.test(k.tarih);
+
+      if (k.eylem === "ekle" && k.metin) {
+        const tarih = tarihGecerli ? k.tarih : seciliTarih;
+        const saat = (k.saat && /^\d{2}:\d{2}$/.test(k.saat)) ? k.saat : null;
+        gorevEkle(tarih, saat, k.metin);
+        return true;
+      }
+
+      if (k.eylem === "vardiya" && tarihGecerli && ["sabah", "aksam", "izin"].includes(k.tip)) {
+        vardiyaDegistir(k.tarih, k.tip);
+        balon(uzunTarih(k.tarih) + " güncellendi: " + (k.tip === "izin" ? "izin günü" : k.tip + " vardiyası") + ".", "asistan");
+        return true;
+      }
+
+      if (k.eylem === "takas" && tarihGecerli && k.tarih2 && /^\d{4}-\d{2}-\d{2}$/.test(k.tarih2)) {
+        const s = vardiyaTakas(k.tarih, k.tarih2);
+        const adiVer = x => x === "izin" ? "izin" : (x === "sabah" ? "sabah" : "akşam");
+        balon("Vardiyalar takaslandı.\n" +
+              "- " + uzunTarih(k.tarih) + " artık " + adiVer(s.tipB) + "\n" +
+              "- " + uzunTarih(k.tarih2) + " artık " + adiVer(s.tipA), "asistan");
+        return true;
+      }
+
+      if (k.eylem === "tamamla" && k.metin) {
+        const bulunanlar = gorevAra(k.metin).filter(x => !x.g.tamam);
+        if (bulunanlar.length > 0) {
+          const { t, g } = bulunanlar[0];
+          g.tamam = true;
+          kaydet();
+          takvimCiz();
+          balon("Tamamlandı olarak işaretlendi: " + uzunTarih(t) + " — " + g.metin, "asistan");
+          return true;
+        }
+        return false;
+      }
+
+      if (k.eylem === "sorgu") {
+        if (tarihGecerli) { gunuGoster(k.tarih); return true; }
+        if (k.metin) {
+          const bulunanlar = gorevAra(k.metin);
+          if (bulunanlar.length > 0) {
+            const satirlar = ["Şunları buldum:"];
+            for (const { t, g } of bulunanlar.slice(0, 10)) {
+              satirlar.push("- " + uzunTarih(t) + (g.saat ? " " + g.saat : "") + " — " + g.metin + (g.tamam ? " (tamam)" : ""));
+            }
+            balon(satirlar.join("\n"), "asistan");
+          } else {
+            balon("Buna uyan bir görev bulamadım.", "asistan");
+          }
+          return true;
+        }
+      }
+
+      return false;
+    } catch (e) {
+      dusunce.remove();
+      return false;
+    }
+  }
+
+  async function gonder() {
     const metin = girdi.value.trim();
     if (!metin) return;
     girdi.value = "";
@@ -1348,12 +1464,15 @@
 
     if (yerelIsle(metin)) return;
 
-    balon("Bunu anlayamadım. Şöyle deneyebilirsin:\n" +
-          '- "1 ağustos 14:00 ahmetle buluşma"\n' +
-          '- "5 ağustosta işim var mı?"\n' +
-          '- "kurban bayramı ne zaman?"\n' +
-          '- "22 temmuz vardiyamı 23 temmuzla değiştirdim"\n' +
-          '- "ahmetle buluşmayı tamamladım" / "...sil"', "asistan");
+    const aiBasarili = await aiIsle(metin);
+    if (!aiBasarili) {
+      balon("Bunu anlayamadım. Şöyle deneyebilirsin:\n" +
+            '- "1 ağustos 14:00 ahmetle buluşma"\n' +
+            '- "5 ağustosta işim var mı?"\n' +
+            '- "kurban bayramı ne zaman?"\n' +
+            '- "22 temmuz vardiyamı 23 temmuzla değiştirdim"\n' +
+            '- "ahmetle buluşmayı tamamladım" / "...sil"', "asistan");
+    }
   }
 
   /* ============ Vardiya penceresi ============ */
